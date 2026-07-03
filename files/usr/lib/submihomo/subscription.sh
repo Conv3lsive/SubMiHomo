@@ -8,7 +8,7 @@ SUB_MAX_BYTES=5242880
 _subscription_download() {
     url=$1
     tmpfile=$2
-    ua=$(uci_get subscription_user_agent "SubMiHomo/1.0")
+    ua=$(uci_get subscription_user_agent "clash.meta")
     rm -f "$tmpfile"
     if ! wget --timeout=30 --tries=1 --max-redirect=0 -U "$ua" -O "$tmpfile" "$url" 2>/dev/null; then
         log_error "[subscription] download failed"
