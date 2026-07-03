@@ -35,7 +35,7 @@ export RUN_DIR SUB_DIR CONFIG_DIR
 
 # ── Generated config is not world-readable ────────────────────────────────────
 config_generate >/dev/null 2>&1
-mode=$(stat -f '%Lp' "$RUN_DIR/config.yaml" 2>/dev/null || stat -c '%a' "$RUN_DIR/config.yaml" 2>/dev/null)
+mode=$(stat -c '%a' "$RUN_DIR/config.yaml" 2>/dev/null || stat -f '%Lp' "$RUN_DIR/config.yaml" 2>/dev/null)
 assert_eq "generated config.yaml mode is 600" "600" "$mode"
 
 # ── Controller defaults to loopback when LAN access disabled ──────────────────
@@ -57,7 +57,7 @@ rules:
 EOF
 chmod 644 "$SANDBOX/sub_input.yaml"
 _subscription_apply "$SANDBOX/sub_input.yaml"
-mode=$(stat -f '%Lp' "$SUB_DIR/current.yaml" 2>/dev/null || stat -c '%a' "$SUB_DIR/current.yaml" 2>/dev/null)
+mode=$(stat -c '%a' "$SUB_DIR/current.yaml" 2>/dev/null || stat -f '%Lp' "$SUB_DIR/current.yaml" 2>/dev/null)
 assert_eq "subscription current.yaml mode is 600" "600" "$mode"
 
 # ── rpcd get_config redacts the controller secret ─────────────────────────────
