@@ -1,0 +1,39 @@
+# OpenWrt SDK build output (repo-root only — not files/**/bin, which is real package content)
+/build_dir/
+/bin/
+/staging_dir/
+/dl/
+/feeds/
+/tmp/
+/logs/
+
+# Editor artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Key material - never commit private keys
+*.rsa
+*.pem
+keys/*.priv
+keys/*.key
+
+# Test artifacts
+tests/unit/tmp/
+tests/integration/tmp/
+tests/system/tmp/
+
+# Local dev scripts
+install/dev-*.sh
+
+# Claude Code session data
+.claude/
+
+# Local CI and build reports (not for version control)
+reports/

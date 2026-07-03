@@ -1,0 +1,23 @@
+#!/bin/sh
+# Dummy Mihomo core for integration testing.
+# Responds to the CLI surface SubMiHomo uses; otherwise sleeps forever.
+
+trap 'exit 0' TERM INT HUP
+
+case "${1:-}" in
+    -t)
+        # config validation
+        exit 0
+        ;;
+    -v)
+        echo "Mihomo 1.18.0 dummy"
+        exit 0
+        ;;
+    -f)
+        # foreground run; ignore config and rundir
+        while true; do sleep 60; done
+        ;;
+    *)
+        while true; do sleep 60; done
+        ;;
+esac

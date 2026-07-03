@@ -1,0 +1,143 @@
+#!/bin/sh
+# submihomo-ctl — CLI management tool for SubMiHomo
+# shellcheck shell=sh
+
+. "${SUBMIHOMO_LIB:-/usr/lib/submihomo}/core.sh"
+
+_usage() {
+    cat <<EOF
+Usage: submihomo-ctl <command> [args]
+
+Commands:
+  status        Print service status
+  start         Start the service
+  stop          Stop the service
+  restart       Restart the service
+  update        Fetch and apply latest subscription
+  dashboard     Download/update Zashboard
+  core-install  Download/install managed Mihomo binary
+  core-update   Update managed Mihomo binary
+  core-rollback Roll back to previous managed Mihomo binary
+  logs [N]      Print last N log lines (default: 50)
+  test          Run diagnostics (read-only)
+  version       Print version information
+EOF
+}
+
+cmd_status() {
+    pidfile="$RUN_DIR/mihomo.pid"
+    pid=""
+    [ -f "$pidfile" ] && pid=$(cat "$pidfile" 2>/dev/null)
+    [ -z "$pid" ] && pid=$(pgrep -x mihomo 2>/dev/null | head -1)
+    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+        printf 'SubMiHomo: running (pid %s)\n' "$pid"
+        return 0
+    else
+        printf 'SubMiHomo: stopped\n'
+        return 1
+    fi
+}
+
+cmd_start() { /etc/init.d/submihomo start; }
+cmd_stop() { /etc/init.d/submihomo stop; }
+cmd_restart() { /etc/init.d/submihomo restart; }
+
+cmd_update() {
+    . "${SUBMIHOMO_LIB:-/usr/lib/submihomo}/subscription.sh"
+    subscription_update
+}
+
+cmd_dashboard() {
+    . "${SUBMIHOMO_LIB:-/usr/lib/submihomo}/dashboard.sh"
+    dashboard_download
+}
+
+cmd_logs() {
+    n=${1:-50}
+    logread 2>/dev/null | grep submihomo | tail -n "$n"
+}
+
+cmd_test() {
+    printf '=== SubMiHomo Diagnostics ===\n'
+    pass=0
+    fail=0
+
+    _chk() {
+        label=$1
+        shift
+        if "$@" >/dev/null 2>&1; then
+            printf '[PASS] %s\n' "$label"
+            pass=$((pass + 1))
+        else
+            printf '[FAIL] %s\n' "$label"
+            fail=$((fail + 1))
+        fi
+    }
+
+    _chk "managed mihomo binary present" test -x "$MIHOMO_BIN"
+    _chk "subscription file present" test -s "$SUB_DIR/current.yaml"
+    _chk "config template present" test -f "$CONFIG_DIR/templates/base.yaml.tmpl"
+    _chk "run directory exists" test -d "$RUN_DIR"
+    _chk "dnsmasq config present" test -f /etc/dnsmasq.d/submihomo.conf
+    _chk "nftables table present" nft list table inet submihomo
+    _chk "ip rule present" sh -c "ip rule show | grep -q fwmark"
+    _chk "routing table 100 present" sh -c "ip route show table 100 | grep -q 'local default'"
+    _chk "dashboard present" test -f "$DASHBOARD_DIR/index.html"
+
+    if [ -s "$SUB_DIR/current.yaml" ] && [ -f "$CONFIG_DIR/templates/base.yaml.tmpl" ]; then
+        . "${SUBMIHOMO_LIB:-/usr/lib/submihomo}/config.sh"
+        _chk "config generates and validates" config_generate
+    fi
+
+    printf '\nResult: %d passed, %d failed\n' "$pass" "$fail"
+    [ "$fail" -eq 0 ]
+}
+
+cmd_version() {
+    sm_ver="1.0.0"
+    if [ -x "$MIHOMO_BIN" ]; then
+        mi_ver=$("$MIHOMO_BIN" -v 2>/dev/null | head -1 || echo "unknown")
+    else
+        mi_ver="not installed"
+    fi
+    . "${SUBMIHOMO_LIB:-/usr/lib/submihomo}/dashboard.sh"
+    dash_ver=$(dashboard_version)
+    printf 'SubMiHomo:  %s\n' "$sm_ver"
+    printf 'Mihomo:     %s\n' "$mi_ver"
+    printf 'Mihomo bin: %s\n' "$MIHOMO_BIN"
+    printf 'Dashboard:  %s\n' "$dash_ver"
+}
+
+cmd_core_install() {
+    . "${SUBMIHOMO_LIB:-/usr/lib/submihomo}/mihomo.sh"
+    mihomo_install_version "${1:-}"
+}
+
+cmd_core_update() {
+    . "${SUBMIHOMO_LIB:-/usr/lib/submihomo}/mihomo.sh"
+    mihomo_update
+}
+
+cmd_core_rollback() {
+    . "${SUBMIHOMO_LIB:-/usr/lib/submihomo}/mihomo.sh"
+    mihomo_rollback
+}
+
+case "${1:-}" in
+status) cmd_status ;;
+start) cmd_start ;;
+stop) cmd_stop ;;
+restart) cmd_restart ;;
+update) cmd_update ;;
+dashboard) cmd_dashboard ;;
+core-install) cmd_core_install "${2:-}" ;;
+core-update) cmd_core_update ;;
+core-rollback) cmd_core_rollback ;;
+logs) cmd_logs "${2:-50}" ;;
+test) cmd_test ;;
+version) cmd_version ;;
+*)
+    _usage
+    exit 1
+    ;;
+esac
