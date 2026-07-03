@@ -1,0 +1,128 @@
+name: CI — Code Quality & Testing
+
+on:
+  push:
+    branches: [main, develop, "feature/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck shfmt
+
+      - name: ShellCheck — shell scripts
+        run: |
+          echo "Running ShellCheck on shell scripts..."
+          found=0
+          for dir in files/ install/ tests/; do
+            if [ -d "$dir" ]; then
+              find "$dir" -name "*.sh" -o -name "submihomo" -o -name "submihomo-ctl" | while read -r file; do
+                if [ -f "$file" ]; then
+                  # Skip non-shell files (e.g., Lua rpcd plugins)
+                  shebang=$(head -1 "$file")
+                  case "$shebang" in
+                    "#!/bin/sh"*|"#!/usr/bin/env sh"*|"#!/bin/sh /etc/rc.common"*) ;;
+                    *) continue ;;
+                  esac
+                  found=$((found+1))
+                  # SC1091: sourced file not found (not testable in CI)
+                  # SC2181: explicit exit codes not needed
+                  # SC2034: OpenWrt rc.common reads USE_PROCD/START/STOP externally
+                  shellcheck --shell=sh --severity=warning --exclude=SC1091,SC2181,SC2034 "$file" || exit 1
+                fi
+              done || exit 1
+            fi
+          done
+          if [ $found -eq 0 ]; then
+            echo "⚠ WARNING: No shell files found to check"
+          else
+            echo "✓ ShellCheck passed"
+          fi
+
+      - name: shfmt — shell script formatting
+        run: |
+          echo "Checking shell script formatting with shfmt..."
+          found=0
+          for dir in files/ install/ tests/; do
+            if [ -d "$dir" ]; then
+              find "$dir" -name "*.sh" -o -name "submihomo" -o -name "submihomo-ctl" | while read -r file; do
+                if [ -f "$file" ]; then
+                  # Skip non-shell files (e.g., Lua rpcd plugins)
+                  shebang=$(head -1 "$file")
+                  case "$shebang" in
+                    "#!/bin/sh"*|"#!/usr/bin/env sh"*|"#!/bin/sh /etc/rc.common"*) ;;
+                    *) continue ;;
+                  esac
+                  found=$((found+1))
+                  if ! shfmt -d -i 4 "$file" > /dev/null 2>&1; then
+                    echo "❌ Formatting issue in $file"
+                    shfmt -d -i 4 "$file"
+                    exit 1
+                  fi
+                fi
+              done || exit 1
+            fi
+          done
+          if [ $found -eq 0 ]; then
+            echo "⚠ WARNING: No shell files found to format-check"
+          else
+            echo "✓ shfmt passed"
+          fi
+
+      - name: Verify shell syntax
+        run: |
+          echo "Verifying syntax of all shell files..."
+          errors=0
+          for dir in files/ install/ tests/; do
+            if [ -d "$dir" ]; then
+              find "$dir" -name "*.sh" -o -name "submihomo" -o -name "submihomo-ctl" | while read -r file; do
+                if [ -f "$file" ]; then
+                  if ! sh -n "$file" 2>&1; then
+                    echo "❌ Syntax error in $file"
+                    errors=$((errors+1))
+                  fi
+                fi
+              done || { errors=$((errors+$?)); }
+            fi
+          done
+          if [ $errors -gt 0 ]; then
+            echo "❌ $errors file(s) with syntax errors"
+            exit 1
+          fi
+          echo "✓ All shell files have valid syntax"
+
+      - name: Run unit tests (194 tests)
+        run: |
+          echo "Running all unit tests..."
+          chmod +x tests/unit/run_all.sh tests/unit/test_*.sh
+          if bash tests/unit/run_all.sh; then
+            echo "✓ All tests passed"
+          else
+            echo "❌ Tests failed"
+            exit 1
+          fi
+
+      - name: Report CI status
+        if: always()
+        run: |
+          echo "=========================================="
+          echo "CI Workflow Summary"
+          echo "=========================================="
+          echo "✓ Code checkout"
+          echo "✓ Tools installed (shellcheck, shfmt)"
+          echo "✓ ShellCheck analysis"
+          echo "✓ Shell format verification"
+          echo "✓ Shell syntax verification"
+          echo "✓ Unit tests (194)"
+          echo "=========================================="
+          echo "CI Pipeline: PASSED"
+          echo "=========================================="

@@ -1,0 +1,9 @@
+#!/bin/sh
+# Fake ip for Docker integration testing (no policy-routing in container).
+# Logs invocations and returns success.
+printf 'ip %s\n' "$*" >> /tmp/submihomo_docker.log
+case "$*" in
+    *"rule show"*) ;;
+    *"route show table"*) ;;
+esac
+exit 0

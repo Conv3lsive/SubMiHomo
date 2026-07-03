@@ -1,0 +1,5 @@
+#!/bin/sh
+# Fake nft for Docker integration testing (no kernel netfilter in container).
+# Logs invocations and returns success so the SubMiHomo lifecycle can proceed.
+printf 'nft %s\n' "$*" >> /tmp/submihomo_docker.log
+exit 0

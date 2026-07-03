@@ -1,0 +1,74 @@
+#!/bin/sh /etc/rc.common
+# /etc/init.d/submihomo — procd init script for SubMiHomo
+# shellcheck shell=sh
+
+USE_PROCD=1
+START=95
+STOP=5
+
+MODULES_DIR="${SUBMIHOMO_LIB:-/usr/lib/submihomo}"
+
+start_service() {
+    . "$MODULES_DIR/core.sh"
+
+    is_enabled || return 0
+
+    run_migrations || log_warn "[init] config migration failed, continuing"
+
+    . "$MODULES_DIR/mihomo.sh"
+    mihomo_ensure_installed || {
+        log_error "[init] Mihomo binary is not installed and automatic install failed"
+        return 1
+    }
+
+    if [ ! -s "$SUB_DIR/current.yaml" ]; then
+        log_error "[init] no subscription found — run 'submihomo-ctl update' then restart"
+        return 1
+    fi
+
+    . "$MODULES_DIR/config.sh"
+    config_generate || return 1
+
+    . "$MODULES_DIR/routing.sh"
+    routing_setup || { routing_teardown; return 1; }
+
+    . "$MODULES_DIR/dns.sh"
+    dns_setup || { dns_teardown; routing_teardown; return 1; }
+
+    . "$MODULES_DIR/firewall.sh"
+    firewall_setup || { firewall_teardown; dns_teardown; routing_teardown; return 1; }
+
+    # Non-blocking dashboard auto-download (failure must not block proxy startup)
+    if [ ! -f "$DASHBOARD_DIR/index.html" ]; then
+        . "$MODULES_DIR/dashboard.sh"
+        dashboard_download 2>/dev/null &
+    fi
+
+    . "$MODULES_DIR/subscription.sh"
+    subscription_cron_update
+
+    procd_open_instance
+    procd_set_param command "$MIHOMO_BIN" -f "$RUN_DIR/config.yaml" -d "$RUN_DIR"
+    procd_set_param respawn 60 5 0
+    procd_set_param stdout 1
+    procd_set_param stderr 1
+    procd_set_param pidfile "$RUN_DIR/mihomo.pid"
+    procd_close_instance
+
+    log_info "[init] SubMiHomo started"
+}
+
+stop_service() {
+    . "$MODULES_DIR/core.sh"
+    . "$MODULES_DIR/firewall.sh"
+    firewall_teardown
+    . "$MODULES_DIR/dns.sh"
+    dns_teardown
+    . "$MODULES_DIR/routing.sh"
+    routing_teardown
+    log_info "[init] SubMiHomo stopped"
+}
+
+service_triggers() {
+    procd_add_reload_trigger "submihomo"
+}

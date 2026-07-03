@@ -1,0 +1,31 @@
+{
+  "luci-app-submihomo": {
+    "description": "SubMiHomo management",
+    "read": {
+      "ubus": {
+        "submihomo": [
+          "status",
+          "get_config",
+          "get_logs",
+          "run_diagnostics",
+          "get_proxies",
+          "test_connection"
+        ]
+      },
+      "uci": ["submihomo"]
+    },
+    "write": {
+      "ubus": {
+        "submihomo": [
+          "start",
+          "stop",
+          "restart",
+          "update_subscription",
+          "set_config",
+          "download_dashboard"
+        ]
+      },
+      "uci": ["submihomo"]
+    }
+  }
+}

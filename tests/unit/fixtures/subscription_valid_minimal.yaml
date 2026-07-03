@@ -1,0 +1,16 @@
+proxies:
+  - name: "test-node-1"
+    type: ss
+    server: 203.0.113.10
+    port: 8388
+    cipher: aes-256-gcm
+    password: "test-password-only-used-in-fixtures"
+
+proxy-groups:
+  - name: "auto"
+    type: select
+    proxies:
+      - "test-node-1"
+
+rules:
+  - MATCH,auto

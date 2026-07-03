@@ -1,0 +1,45 @@
+{
+  "admin/services/submihomo": {
+    "title": "SubMiHomo",
+    "order": 60,
+    "action": {
+      "type": "view",
+      "path": "submihomo/overview"
+    },
+    "depends": {
+      "acl": [ "luci-app-submihomo" ]
+    }
+  },
+  "admin/services/submihomo/subscription": {
+    "title": "Subscription",
+    "order": 10,
+    "action": {
+      "type": "view",
+      "path": "submihomo/subscription"
+    }
+  },
+  "admin/services/submihomo/settings": {
+    "title": "Settings",
+    "order": 20,
+    "action": {
+      "type": "view",
+      "path": "submihomo/settings"
+    }
+  },
+  "admin/services/submihomo/proxies": {
+    "title": "Proxies",
+    "order": 30,
+    "action": {
+      "type": "view",
+      "path": "submihomo/proxies"
+    }
+  },
+  "admin/services/submihomo/logs": {
+    "title": "Logs",
+    "order": 40,
+    "action": {
+      "type": "view",
+      "path": "submihomo/logs"
+    }
+  }
+}

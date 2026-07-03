@@ -1,0 +1,30 @@
+proxies:
+  - name: "日本-東京-01"
+    type: ss
+    server: 1.1.1.1
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: 'РФ-Москва-01'
+    type: vmess
+    server: 2.2.2.2
+    port: 443
+    uuid: 00000000-0000-0000-0000-000000000000
+    alterId: 0
+    cipher: auto
+  - name: "🚀 高速节点"
+    type: ss
+    server: 3.3.3.3
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+proxy-groups:
+  - name: "🌏 自动选择"
+    type: select
+    proxies:
+      - "日本-東京-01"
+      - 'РФ-Москва-01'
+      - "🚀 高速节点"
+rules:
+  - DOMAIN,google.com,"🌏 自动选择"
+  - MATCH,"🌏 自动选择"

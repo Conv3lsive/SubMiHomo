@@ -1,0 +1,29 @@
+# Subscription with comments and YAML anchors/aliases
+proxies:
+  - &node1
+    name: "anchor-node-1"
+    type: ss
+    server: 1.1.1.1
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - <<: *node1
+    name: "alias-node-2"
+    server: 2.2.2.2
+  # inline comment should be ignored by extractors
+  - name: "plain-node-3"
+    type: ss
+    server: 3.3.3.3
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+proxy-groups:
+  - name: "Auto"
+    type: select
+    proxies:
+      - "anchor-node-1"
+      - "alias-node-2"
+      - "plain-node-3"
+rules:
+  - DOMAIN,example.com,Auto
+  - MATCH,Auto

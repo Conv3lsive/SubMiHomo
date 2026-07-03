@@ -1,0 +1,26 @@
+# Mihomo runtime configuration template
+# Tokens replaced by config.sh at service start time.
+# {{PLACEHOLDER}} tokens are substituted via sed.
+
+mixed-port: {{MIXED_PORT}}
+tproxy-port: {{TPROXY_PORT}}
+allow-lan: {{ALLOW_LAN}}
+bind-address: '*'
+mode: rule
+log-level: {{LOG_LEVEL}}
+ipv6: false
+routing-mark: 255
+
+external-controller: {{CTRL_BIND}}:{{CTRL_PORT}}
+secret: "{{CTRL_SECRET}}"
+
+external-ui: {{DASHBOARD_DIR}}
+
+{{DNS_SECTION}}
+
+proxies: []
+
+proxy-groups: []
+
+rules:
+  - MATCH,DIRECT

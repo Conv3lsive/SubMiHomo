@@ -1,0 +1,467 @@
+#!/usr/bin/lua
+-- /usr/lib/rpcd/submihomo — rpcd Lua plugin (12 methods)
+-- shellcheck: N/A (Lua)
+
+local json = require "luci.jsonc"
+local uci_lib = require "uci"
+
+local CTRL_PORT_DEFAULT = 9090
+local RUN_DIR  = "/var/run/submihomo"
+local SUB_DIR  = "/etc/submihomo/subscriptions"
+local DASH_DIR = "/usr/share/submihomo/dashboard"
+local MODS_DIR = "/usr/lib/submihomo"
+local MIHOMO_BIN = "/usr/libexec/submihomo/mihomo"
+local MIHOMO_VERSION_FILE = "/etc/submihomo/mihomo/version"
+
+-- ── UCI helpers ────────────────────────────────────────────────────────────
+local function uci_cursor()
+    local c = uci_lib.cursor(); c:load("submihomo"); return c
+end
+
+local function read_uci()
+    local c = uci_cursor()
+    local m = {}
+    local opts = {
+        "enabled","subscription_url","subscription_update_interval",
+        "dns_mode","log_level","external_controller_port","external_controller_secret",
+        "allow_lan_access","bypass_china","bypass_china_geoip_code",
+        "dashboard_repo","subscription_user_agent",
+        "dns_nameserver","dns_fallback","dns_fallback_filter_geoip",
+        "internal_group_name"
+    }
+    for _, k in ipairs(opts) do m[k] = c:get("submihomo","main",k) or "" end
+    local bp = {address={}}
+    c:foreach("submihomo","bypass",function(s)
+        if type(s.address)=="table" then bp.address=s.address
+        elseif type(s.address)=="string" and #s.address>0 then bp.address={s.address} end
+    end)
+    return {main=m, bypass=bp}, c
+end
+
+local function mask_url(u)
+    if type(u)~="string" or #u==0 then return "" end
+    return u:sub(1,20).."..."
+end
+
+-- ── Mihomo API (always localhost — controller may be on 127.0.0.1 only) ────
+local function mihomo_api(method, path, body)
+    local c = uci_cursor()
+    local port = tonumber(c:get("submihomo","main","external_controller_port")) or CTRL_PORT_DEFAULT
+    local secret = c:get("submihomo","main","external_controller_secret") or ""
+    local auth = #secret>0 and (" -H 'Authorization: Bearer "..secret.."'") or ""
+    local url = ("http://127.0.0.1:%d%s"):format(port, path)
+    local cmd
+    if body then
+        cmd = ("wget -q -O - --method=%s%s --header='Content-Type: application/json' --body-data='%s' '%s' 2>/dev/null"):format(
+            method, auth, body:gsub("'","\\'"), url)
+    else
+        cmd = ("wget -q -O -%s '%s' 2>/dev/null"):format(auth, url)
+    end
+    local fh = io.popen(cmd)
+    local r = fh and fh:read("*a") or ""
+    if fh then fh:close() end
+    return r
+end
+
+local function get_pid()
+    local fh = io.open(RUN_DIR.."/mihomo.pid")
+    if fh then
+        local p = fh:read("*a"):match("^%s*(%d+)%s*$")
+        fh:close()
+        if p then
+            local pid = tonumber(p)
+            -- Verify process actually exists
+            local chk = io.popen(("kill -0 %d 2>/dev/null; echo $?"):format(pid))
+            local alive = chk and chk:read("*a"):match("^0") ~= nil
+            if chk then chk:close() end
+            if alive then return pid end
+        end
+    end
+    local fh2 = io.popen("pgrep -x mihomo 2>/dev/null | head -1")
+    local p = fh2 and fh2:read("*a"):match("^%s*(%d+)%s*$")
+    if fh2 then fh2:close() end
+    return p and tonumber(p) or nil
+end
+
+local function file_exists(path)
+    local fh = io.open(path)
+    if fh then fh:close(); return true end
+    return false
+end
+
+local function read_mihomo_meta()
+    local meta = {}
+    local fh = io.open(MIHOMO_VERSION_FILE)
+    if not fh then return meta end
+    for line in fh:lines() do
+        local k, v = line:match("^([%w_]+)=(.*)$")
+        if k then meta[k] = v end
+    end
+    fh:close()
+    return meta
+end
+
+local function ubus_svc(action)
+    local fh = io.popen(('ubus call service %s \'{"name":"submihomo"}\' 2>&1'):format(action))
+    local out = fh and fh:read("*a") or ""
+    local ok = fh and fh:close()
+    return (ok ~= false), out
+end
+
+-- ── Validation ────────────────────────────────────────────────────────────
+local VALID_DNS = {["fake-ip"]=true, ["real-ip"]=true}
+local VALID_LVL = {["debug"]=true,["info"]=true,["warning"]=true,["error"]=true,["silent"]=true}
+local VALID_INT = {["0"]=true,["6"]=true,["12"]=true,["24"]=true,["48"]=true,["72"]=true}
+
+local function validate(data)
+    local errs, m = {}, data.main or {}
+    local function chk(cond, msg) if cond then errs[#errs+1] = msg end end
+    chk(m.enabled~=nil and m.enabled~="0" and m.enabled~="1",
+        "enabled: must be 0 or 1")
+    chk(m.subscription_url~=nil and m.subscription_url~="" and
+        not m.subscription_url:match("^https://"),
+        "subscription_url: must be empty or begin with https://")
+    chk(m.subscription_update_interval~=nil and
+        not VALID_INT[tostring(m.subscription_update_interval)],
+        "subscription_update_interval: must be one of 0,6,12,24,48,72")
+    chk(m.dns_mode~=nil and not VALID_DNS[m.dns_mode],
+        "dns_mode: must be fake-ip or real-ip")
+    chk(m.log_level~=nil and not VALID_LVL[m.log_level],
+        "log_level: must be one of debug,info,warning,error,silent")
+    if m.external_controller_port ~= nil then
+        local p = tonumber(m.external_controller_port)
+        if not p or p < 1 or p > 65535 then
+            errs[#errs+1] = "external_controller_port: must be 1-65535"
+        elseif p==7891 or p==7890 or p==1053 then
+            errs[#errs+1] = "external_controller_port: conflicts with reserved SubMiHomo port"
+        end
+    end
+    chk(m.allow_lan_access~=nil and m.allow_lan_access~="0" and m.allow_lan_access~="1",
+        "allow_lan_access: must be 0 or 1")
+    chk(m.bypass_china~=nil and m.bypass_china~="0" and m.bypass_china~="1",
+        "bypass_china: must be 0 or 1")
+    chk(m.dashboard_repo~=nil and m.dashboard_repo~="" and
+        not m.dashboard_repo:match("^[%w%.%-_]+/[%w%.%-_]+$"),
+        "dashboard_repo: must be owner/repo format")
+    chk(m.subscription_user_agent~=nil and m.subscription_user_agent=="",
+        "subscription_user_agent: must be non-empty")
+    -- bypass address validation
+    if data.bypass and type(data.bypass.address)=="table" then
+        for i, cidr in ipairs(data.bypass.address) do
+            local a,b,c,d,pfx = cidr:match("^(%d+)%.(%d+)%.(%d+)%.(%d+)/(%d+)$")
+            local ok = a and b and c and d and pfx
+            if ok then
+                for _, oct in ipairs({tonumber(a),tonumber(b),tonumber(c),tonumber(d)}) do
+                    if oct < 0 or oct > 255 then ok = false; break end
+                end
+                local pn = tonumber(pfx)
+                if not pn or pn < 0 or pn > 32 then ok = false end
+            end
+            if not ok then errs[#errs+1] = ("bypass.address[%d]: invalid CIDR"):format(i) end
+        end
+    end
+    return errs
+end
+
+-- ── Method: status ─────────────────────────────────────────────────────────
+local function m_status()
+    local cfg = read_uci()
+    local pid = get_pid()
+    local running = pid ~= nil
+    local ver = nil
+    local core_meta = read_mihomo_meta()
+    if running then
+        local b = mihomo_api("GET", "/version")
+        if b and #b > 0 then ver = b:match('"version"%s*:%s*"([^"]+)"') end
+    end
+    local sub_url = cfg.main.subscription_url or ""
+    local cnt = 0; local mtime = nil
+    local cur = SUB_DIR.."/current.yaml"
+    local fh = io.open(cur)
+    if fh then
+        fh:close()
+        local fh2 = io.popen("grep -c '^[[:space:]]*- name:' '"..cur.."' 2>/dev/null")
+        local s = fh2 and fh2:read("*a") or "0"; if fh2 then fh2:close() end
+        cnt = tonumber(s:match("%d+")) or 0
+        local fh3 = io.popen("stat -c '%Y' '"..cur.."' 2>/dev/null")
+        local mt = fh3 and fh3:read("*a") or ""; if fh3 then fh3:close() end
+        mtime = tonumber(mt:match("%d+"))
+    end
+    local hasdash = (io.open(DASH_DIR.."/index.html") ~= nil)
+    if hasdash then io.open(DASH_DIR.."/index.html"):close() end
+    local dashver = nil
+    local fhv = io.open(DASH_DIR.."/.version")
+    if fhv then dashver = fhv:read("*a"):match("^%s*(.-)%s*$"); fhv:close() end
+    -- Report actual bind address based on allow_lan_access
+    local allow_lan = cfg.main.allow_lan_access or "0"
+    local ctrl_bind = allow_lan == "1" and "0.0.0.0" or "127.0.0.1"
+    return {
+        running = running, pid = pid, version = ver,
+        subscription_url = sub_url, subscription_url_masked = mask_url(sub_url),
+        last_update = mtime, proxy_count = cnt,
+        dns_mode = cfg.main.dns_mode or "fake-ip",
+        tproxy_port = tonumber(cfg.main.tproxy_port) or 7891,
+        ctrl_port = tonumber(cfg.main.external_controller_port) or 9090,
+        ctrl_bind = ctrl_bind,
+        has_dashboard = hasdash, dashboard_version = dashver,
+        secret_configured = (cfg.main.external_controller_secret or "") ~= "",
+        mihomo_binary = MIHOMO_BIN,
+        mihomo_installed = file_exists(MIHOMO_BIN),
+        mihomo_core_version = core_meta.version,
+        mihomo_core_arch = core_meta.arch,
+    }
+end
+
+local function m_start()   local ok,out=ubus_svc("start");   return ok and {success=true} or {success=false,error=out} end
+local function m_stop()    local ok,out=ubus_svc("stop");    return ok and {success=true} or {success=false,error=out} end
+local function m_restart() local ok,out=ubus_svc("restart"); return ok and {success=true} or {success=false,error=out} end
+
+-- ── Method: get_config ────────────────────────────────────────────────────
+local function m_get_config()
+    local cfg = read_uci()
+    -- Redact secret
+    if cfg.main.external_controller_secret and #cfg.main.external_controller_secret > 0 then
+        cfg.main.external_controller_secret = "REDACTED"
+    end
+    cfg.main.config_version = nil
+    return cfg
+end
+
+-- ── Method: set_config ────────────────────────────────────────────────────
+local function m_set_config(params)
+    local errs = validate(params)
+    if #errs > 0 then return {success=false, errors=errs} end
+    local c = uci_cursor()
+    local main = params.main or {}
+    local settable = {
+        "enabled","subscription_url","subscription_update_interval","dns_mode","log_level",
+        "external_controller_port","allow_lan_access","bypass_china","bypass_china_geoip_code",
+        "dashboard_repo","subscription_user_agent",
+        "dns_nameserver","dns_fallback","dns_fallback_filter_geoip","internal_group_name"
+    }
+    for _, k in ipairs(settable) do
+        if main[k] ~= nil then c:set("submihomo","main",k,tostring(main[k])) end
+    end
+    if main.external_controller_secret ~= nil and main.external_controller_secret ~= "REDACTED" then
+        c:set("submihomo","main","external_controller_secret",main.external_controller_secret)
+    end
+    if params.bypass and params.bypass.address then
+        c:delete("submihomo","bypass","address")
+        for _, a in ipairs(params.bypass.address) do
+            c:add_list("submihomo","bypass","address",a)
+        end
+    end
+    return c:commit("submihomo") and {success=true} or {success=false,errors={"UCI commit failed"}}
+end
+
+-- ── Method: get_logs ──────────────────────────────────────────────────────
+local function m_get_logs(p)
+    local lines = math.max(1, math.min(500, tonumber((p or {}).lines) or 100))
+    local src = (p or {}).source or "all"
+    local cmd
+    if src == "mihomo" then
+        cmd = ("logread 2>/dev/null | grep 'submihomo\\.mihomo' | tail -n %d"):format(lines)
+    elseif src == "service" then
+        cmd = ("logread 2>/dev/null | grep ' submihomo:' | grep -v 'submihomo\\.mihomo' | tail -n %d"):format(lines)
+    else
+        cmd = ("logread 2>/dev/null | grep 'submihomo' | tail -n %d"):format(lines)
+    end
+    local fh = io.popen(cmd)
+    local out = fh and fh:read("*a") or ""
+    if fh then fh:close() end
+    local r = {}
+    for line in out:gmatch("[^\n]+") do r[#r+1] = line end
+    return {lines=r}
+end
+
+-- ── Method: run_diagnostics ───────────────────────────────────────────────
+local function m_run_diagnostics()
+    local checks = {}
+    local pid = get_pid(); local running = pid ~= nil; local dns_ok = false
+    local function add(name, status, msg)
+        checks[#checks+1] = {name=name, status=status, message=msg}
+    end
+
+    -- #1 Managed binary
+    if file_exists(MIHOMO_BIN) then add("Managed Mihomo binary","ok",MIHOMO_BIN)
+    else add("Managed Mihomo binary","fail","Missing at "..MIHOMO_BIN) end
+
+    -- #2 Process
+    if running then add("Mihomo process","ok",("Running (pid %d)"):format(pid))
+    else add("Mihomo process","fail","Process not found") end
+
+    -- #3 TPROXY port
+    if running then
+        local fh = io.popen("ss -lnp 2>/dev/null | grep ':7891'")
+        local o = fh and fh:read("*a") or ""; if fh then fh:close() end
+        if #o > 0 then add("TPROXY port","ok","127.0.0.1:7891 listening")
+        else add("TPROXY port","fail","Port 7891 not listening") end
+    else add("TPROXY port","skip","Skipped: Mihomo not running") end
+
+    -- #4 DNS port
+    if running then
+        local fh = io.popen("ss -lnp 2>/dev/null | grep ':1053'")
+        local o = fh and fh:read("*a") or ""; if fh then fh:close() end
+        if #o > 0 then dns_ok = true; add("DNS port","ok","127.0.0.1:1053 listening")
+        else add("DNS port","fail","Port 1053 not listening") end
+    else add("DNS port","skip","Skipped: Mihomo not running") end
+
+    -- #5 External controller (always query localhost)
+    if running then
+        local b = mihomo_api("GET", "/version")
+        if b and #b > 0 then add("External controller","ok","API reachable")
+        else add("External controller","fail","API unreachable on localhost") end
+    else add("External controller","skip","Skipped: Mihomo not running") end
+
+    -- #6 nftables
+    local fh5 = io.popen("nft list table inet submihomo 2>/dev/null")
+    local nft_out = fh5 and fh5:read("*a") or ""; if fh5 then fh5:close() end
+    if #nft_out > 10 then add("Firewall rules","ok","inet submihomo present")
+    else add("Firewall rules","fail","inet submihomo missing") end
+
+    -- #7 IP rule
+    local fh6 = io.popen("ip rule show 2>/dev/null | grep 'fwmark'")
+    local ipr = fh6 and fh6:read("*a") or ""; if fh6 then fh6:close() end
+    if ipr:match("lookup 100") then add("IP rule","ok","fwmark 1 lookup 100 present")
+    else add("IP rule","fail","fwmark ip rule missing") end
+
+    -- #8 Routing table
+    local fh7 = io.popen("ip route show table 100 2>/dev/null")
+    local rt = fh7 and fh7:read("*a") or ""; if fh7 then fh7:close() end
+    if rt:match("local default") then add("Routing table","ok","local default dev lo in table 100")
+    else add("Routing table","fail","local default route missing from table 100") end
+
+    -- #9 Subscription file
+    local sfh = io.open(SUB_DIR.."/current.yaml")
+    if sfh then sfh:close(); add("Subscription file","ok","current.yaml present")
+    else add("Subscription file","fail","current.yaml missing") end
+
+    -- #10 dnsmasq config
+    local dfh = io.open("/etc/dnsmasq.d/submihomo.conf")
+    if dfh then dfh:close(); add("dnsmasq config","ok","submihomo.conf present")
+    else add("dnsmasq config","fail","submihomo.conf missing") end
+
+    -- #11 Dashboard
+    local dhfh = io.open(DASH_DIR.."/index.html")
+    if dhfh then dhfh:close(); add("Dashboard files","ok","index.html present")
+    else add("Dashboard files","warn","Dashboard not downloaded — run submihomo-ctl dashboard") end
+
+    -- #12 DNS resolution
+    if dns_ok then
+        local fh11 = io.popen("nslookup example.com 127.0.0.1 2>/dev/null | grep -i 'address'")
+        local dr = fh11 and fh11:read("*a") or ""; if fh11 then fh11:close() end
+        if #dr > 0 then add("DNS resolution","ok","example.com resolves via 127.0.0.1")
+        else add("DNS resolution","fail","DNS resolution via 127.0.0.1:1053 failed") end
+    else add("DNS resolution","skip","Skipped: DNS port not listening") end
+
+    -- #13 Internet connectivity (warn-only, not an error)
+    if running then
+        local fh12 = io.popen("wget -q -O /dev/null --timeout=10 https://www.google.com 2>/dev/null; echo $?")
+        local ret = fh12 and fh12:read("*a") or "1"; if fh12 then fh12:close() end
+        if ret:match("^0") then add("Internet connectivity","ok","Internet reachable")
+        else add("Internet connectivity","warn","Connectivity test failed (may be normal if proxy is down)") end
+    else add("Internet connectivity","warn","Test skipped (Mihomo not running)") end
+
+    return {checks=checks}
+end
+
+-- ── Method: update_subscription ──────────────────────────────────────────
+local function m_update_subscription()
+    -- Fixed command: zero-argument, no user input interpolated
+    local fh = io.popen(". "..MODS_DIR.."/subscription.sh && subscription_update 2>&1; echo EXIT:$?")
+    local out = fh and fh:read("*a") or ""; if fh then fh:close() end
+    local ec = tonumber(out:match("EXIT:(%d+)")) or 1
+    if ec == 0 then
+        local fh2 = io.popen("grep -c '^[[:space:]]*- name:' '"..SUB_DIR.."/current.yaml' 2>/dev/null")
+        local cnt = fh2 and fh2:read("*a") or "0"; if fh2 then fh2:close() end
+        return {success=true, proxy_count=tonumber(cnt:match("%d+")) or 0}
+    end
+    local errmsg = out:match("%[ERROR%][^\n]*") or "Update failed"
+    return {success=false, error=errmsg}
+end
+
+-- ── Method: download_dashboard ───────────────────────────────────────────
+local function m_download_dashboard()
+    local fh = io.popen(". "..MODS_DIR.."/dashboard.sh && dashboard_download 2>&1; echo EXIT:$?")
+    local out = fh and fh:read("*a") or ""; if fh then fh:close() end
+    if (tonumber(out:match("EXIT:(%d+)")) or 1) == 0 then
+        local fv = io.open(DASH_DIR.."/.version")
+        local v = fv and fv:read("*a"):match("^%s*(.-)%s*$") or ""
+        if fv then fv:close() end
+        return {success=true, version=v}
+    end
+    local errmsg = out:match("%[ERROR%][^\n]*") or "Dashboard download failed"
+    return {success=false, error=errmsg}
+end
+
+-- ── Method: get_proxies ───────────────────────────────────────────────────
+local function m_get_proxies()
+    if not get_pid() then return {groups={}, proxies={}, error="Service not running"} end
+    local body = mihomo_api("GET", "/proxies")
+    if not body or #body == 0 then return {groups={}, proxies={}, error="Mihomo API unavailable"} end
+    local data = json.parse(body)
+    if not data or not data.proxies then return {groups={}, proxies={}, error="Invalid API response"} end
+    local groups, proxies = {}, {}
+    for name, info in pairs(data.proxies) do
+        if info.all then
+            groups[#groups+1] = {name=name, type=info.type or "Unknown", now=info.now or "", all=info.all or {}}
+        else
+            proxies[#proxies+1] = {name=name, type=info.type or "Unknown", alive=info.alive~=false, history=info.history or {}}
+        end
+    end
+    return {groups=groups, proxies=proxies}
+end
+
+-- ── Method: test_connection ───────────────────────────────────────────────
+local function m_test_connection()
+    local c = uci_cursor()
+    local mp = tonumber(c:get("submihomo","main","mixed_port")) or 7890
+    local url = "https://www.gstatic.com/generate_204"
+    local t0 = os.time()
+    local fh = io.popen(("wget -q -O /dev/null -e 'https_proxy=http://127.0.0.1:%d' --timeout=10 '%s' 2>/dev/null; echo $?"):format(mp, url))
+    local ret = fh and fh:read("*a") or "1"; if fh then fh:close() end
+    if ret:match("^0") then
+        return {success=true, latency=(os.time()-t0)*1000, url=url}
+    end
+    return {success=false, error="Connection test failed"}
+end
+
+-- ── Dispatch ──────────────────────────────────────────────────────────────
+local methods = {
+    status             = {handler=m_status,             params={}},
+    start              = {handler=m_start,              params={}},
+    stop               = {handler=m_stop,               params={}},
+    restart            = {handler=m_restart,            params={}},
+    get_config         = {handler=m_get_config,         params={}},
+    set_config         = {handler=m_set_config,         params={main={},bypass={}}},
+    get_logs           = {handler=m_get_logs,           params={lines=100,source="all"}},
+    run_diagnostics    = {handler=m_run_diagnostics,    params={}},
+    update_subscription= {handler=m_update_subscription,params={}},
+    download_dashboard = {handler=m_download_dashboard, params={}},
+    get_proxies        = {handler=m_get_proxies,        params={}},
+    test_connection    = {handler=m_test_connection,    params={}},
+}
+
+local action = arg[1]
+if action == "list" then
+    local list = {}
+    for n, m in pairs(methods) do list[n] = m.params end
+    print(json.stringify(list)); os.exit(0)
+end
+
+local input = io.read("*a"); local params = {}
+if input and #input > 0 then
+    local ok, parsed = pcall(json.parse, input)
+    if ok and parsed then params = parsed end
+end
+
+local m = methods[action]
+if not m then
+    print(json.stringify({error="Method not found: "..tostring(action)})); os.exit(1)
+end
+
+local ok, result = pcall(m.handler, params)
+if not ok then
+    print(json.stringify({error=tostring(result)})); os.exit(1)
+end
+print(json.stringify(result)); os.exit(0)

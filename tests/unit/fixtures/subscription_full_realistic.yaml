@@ -1,0 +1,46 @@
+proxies:
+  - name: "HK-01"
+    type: vmess
+    server: hk01.example.net
+    port: 443
+    uuid: "aaaabbbb-cccc-dddd-eeee-ffffaaaabbbb"
+    alterId: 0
+    cipher: auto
+    tls: true
+  - name: "US-01"
+    type: trojan
+    server: us01.example.net
+    port: 443
+    password: "fixture-trojan-password"
+    sni: us01.example.net
+  - name: "JP-01"
+    type: ss
+    server: jp01.example.net
+    port: 8388
+    cipher: chacha20-ietf-poly1305
+    password: "fixture-ss-password"
+
+proxy-groups:
+  - name: "Auto"
+    type: url-test
+    proxies:
+      - "HK-01"
+      - "US-01"
+      - "JP-01"
+    url: "http://www.gstatic.com/generate_204"
+    interval: 300
+  - name: "Fallback"
+    type: fallback
+    proxies:
+      - "HK-01"
+      - "US-01"
+      - "JP-01"
+    url: "http://www.gstatic.com/generate_204"
+    interval: 300
+
+rules:
+  - DOMAIN-SUFFIX,netflix.com,Auto
+  - DOMAIN-SUFFIX,google.com,Auto
+  - IP-CIDR,8.8.8.8/32,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,Auto

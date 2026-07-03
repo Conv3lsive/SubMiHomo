@@ -1,0 +1,1057 @@
+proxies:
+  - name: "bulk-node-001"
+    type: ss
+    server: 1.2.3.4
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-002"
+    type: ss
+    server: 2.3.4.5
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-003"
+    type: ss
+    server: 3.4.5.6
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-004"
+    type: ss
+    server: 4.5.6.7
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-005"
+    type: ss
+    server: 5.6.7.8
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-006"
+    type: ss
+    server: 6.7.8.9
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-007"
+    type: ss
+    server: 7.8.9.10
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-008"
+    type: ss
+    server: 8.9.10.11
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-009"
+    type: ss
+    server: 9.10.11.12
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-010"
+    type: ss
+    server: 10.11.12.13
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-011"
+    type: ss
+    server: 11.12.13.14
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-012"
+    type: ss
+    server: 12.13.14.15
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-013"
+    type: ss
+    server: 13.14.15.16
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-014"
+    type: ss
+    server: 14.15.16.17
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-015"
+    type: ss
+    server: 15.16.17.18
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-016"
+    type: ss
+    server: 16.17.18.19
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-017"
+    type: ss
+    server: 17.18.19.20
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-018"
+    type: ss
+    server: 18.19.20.21
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-019"
+    type: ss
+    server: 19.20.21.22
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-020"
+    type: ss
+    server: 20.21.22.23
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-021"
+    type: ss
+    server: 21.22.23.24
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-022"
+    type: ss
+    server: 22.23.24.25
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-023"
+    type: ss
+    server: 23.24.25.26
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-024"
+    type: ss
+    server: 24.25.26.27
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-025"
+    type: ss
+    server: 25.26.27.28
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-026"
+    type: ss
+    server: 26.27.28.29
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-027"
+    type: ss
+    server: 27.28.29.30
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-028"
+    type: ss
+    server: 28.29.30.31
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-029"
+    type: ss
+    server: 29.30.31.32
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-030"
+    type: ss
+    server: 30.31.32.33
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-031"
+    type: ss
+    server: 31.32.33.34
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-032"
+    type: ss
+    server: 32.33.34.35
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-033"
+    type: ss
+    server: 33.34.35.36
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-034"
+    type: ss
+    server: 34.35.36.37
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-035"
+    type: ss
+    server: 35.36.37.38
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-036"
+    type: ss
+    server: 36.37.38.39
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-037"
+    type: ss
+    server: 37.38.39.40
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-038"
+    type: ss
+    server: 38.39.40.41
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-039"
+    type: ss
+    server: 39.40.41.42
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-040"
+    type: ss
+    server: 40.41.42.43
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-041"
+    type: ss
+    server: 41.42.43.44
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-042"
+    type: ss
+    server: 42.43.44.45
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-043"
+    type: ss
+    server: 43.44.45.46
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-044"
+    type: ss
+    server: 44.45.46.47
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-045"
+    type: ss
+    server: 45.46.47.48
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-046"
+    type: ss
+    server: 46.47.48.49
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-047"
+    type: ss
+    server: 47.48.49.50
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-048"
+    type: ss
+    server: 48.49.50.51
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-049"
+    type: ss
+    server: 49.50.51.52
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-050"
+    type: ss
+    server: 50.51.52.53
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-051"
+    type: ss
+    server: 51.52.53.54
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-052"
+    type: ss
+    server: 52.53.54.55
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-053"
+    type: ss
+    server: 53.54.55.56
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-054"
+    type: ss
+    server: 54.55.56.57
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-055"
+    type: ss
+    server: 55.56.57.58
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-056"
+    type: ss
+    server: 56.57.58.59
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-057"
+    type: ss
+    server: 57.58.59.60
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-058"
+    type: ss
+    server: 58.59.60.61
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-059"
+    type: ss
+    server: 59.60.61.62
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-060"
+    type: ss
+    server: 60.61.62.63
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-061"
+    type: ss
+    server: 61.62.63.64
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-062"
+    type: ss
+    server: 62.63.64.65
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-063"
+    type: ss
+    server: 63.64.65.66
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-064"
+    type: ss
+    server: 64.65.66.67
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-065"
+    type: ss
+    server: 65.66.67.68
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-066"
+    type: ss
+    server: 66.67.68.69
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-067"
+    type: ss
+    server: 67.68.69.70
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-068"
+    type: ss
+    server: 68.69.70.71
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-069"
+    type: ss
+    server: 69.70.71.72
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-070"
+    type: ss
+    server: 70.71.72.73
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-071"
+    type: ss
+    server: 71.72.73.74
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-072"
+    type: ss
+    server: 72.73.74.75
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-073"
+    type: ss
+    server: 73.74.75.76
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-074"
+    type: ss
+    server: 74.75.76.77
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-075"
+    type: ss
+    server: 75.76.77.78
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-076"
+    type: ss
+    server: 76.77.78.79
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-077"
+    type: ss
+    server: 77.78.79.80
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-078"
+    type: ss
+    server: 78.79.80.81
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-079"
+    type: ss
+    server: 79.80.81.82
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-080"
+    type: ss
+    server: 80.81.82.83
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-081"
+    type: ss
+    server: 81.82.83.84
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-082"
+    type: ss
+    server: 82.83.84.85
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-083"
+    type: ss
+    server: 83.84.85.86
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-084"
+    type: ss
+    server: 84.85.86.87
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-085"
+    type: ss
+    server: 85.86.87.88
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-086"
+    type: ss
+    server: 86.87.88.89
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-087"
+    type: ss
+    server: 87.88.89.90
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-088"
+    type: ss
+    server: 88.89.90.91
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-089"
+    type: ss
+    server: 89.90.91.92
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-090"
+    type: ss
+    server: 90.91.92.93
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-091"
+    type: ss
+    server: 91.92.93.94
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-092"
+    type: ss
+    server: 92.93.94.95
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-093"
+    type: ss
+    server: 93.94.95.96
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-094"
+    type: ss
+    server: 94.95.96.97
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-095"
+    type: ss
+    server: 95.96.97.98
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-096"
+    type: ss
+    server: 96.97.98.99
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-097"
+    type: ss
+    server: 97.98.99.100
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-098"
+    type: ss
+    server: 98.99.100.101
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-099"
+    type: ss
+    server: 99.100.101.102
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-100"
+    type: ss
+    server: 100.101.102.103
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-101"
+    type: ss
+    server: 101.102.103.104
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-102"
+    type: ss
+    server: 102.103.104.105
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-103"
+    type: ss
+    server: 103.104.105.106
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-104"
+    type: ss
+    server: 104.105.106.107
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-105"
+    type: ss
+    server: 105.106.107.108
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-106"
+    type: ss
+    server: 106.107.108.109
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-107"
+    type: ss
+    server: 107.108.109.110
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-108"
+    type: ss
+    server: 108.109.110.111
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-109"
+    type: ss
+    server: 109.110.111.112
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-110"
+    type: ss
+    server: 110.111.112.113
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-111"
+    type: ss
+    server: 111.112.113.114
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-112"
+    type: ss
+    server: 112.113.114.115
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-113"
+    type: ss
+    server: 113.114.115.116
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-114"
+    type: ss
+    server: 114.115.116.117
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-115"
+    type: ss
+    server: 115.116.117.118
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-116"
+    type: ss
+    server: 116.117.118.119
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-117"
+    type: ss
+    server: 117.118.119.120
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-118"
+    type: ss
+    server: 118.119.120.121
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-119"
+    type: ss
+    server: 119.120.121.122
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-120"
+    type: ss
+    server: 120.121.122.123
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-121"
+    type: ss
+    server: 121.122.123.124
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-122"
+    type: ss
+    server: 122.123.124.125
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-123"
+    type: ss
+    server: 123.124.125.126
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-124"
+    type: ss
+    server: 124.125.126.127
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-125"
+    type: ss
+    server: 125.126.127.128
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-126"
+    type: ss
+    server: 126.127.128.129
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-127"
+    type: ss
+    server: 127.128.129.130
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-128"
+    type: ss
+    server: 128.129.130.131
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-129"
+    type: ss
+    server: 129.130.131.132
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-130"
+    type: ss
+    server: 130.131.132.133
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-131"
+    type: ss
+    server: 131.132.133.134
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-132"
+    type: ss
+    server: 132.133.134.135
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-133"
+    type: ss
+    server: 133.134.135.136
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-134"
+    type: ss
+    server: 134.135.136.137
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-135"
+    type: ss
+    server: 135.136.137.138
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-136"
+    type: ss
+    server: 136.137.138.139
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-137"
+    type: ss
+    server: 137.138.139.140
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-138"
+    type: ss
+    server: 138.139.140.141
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-139"
+    type: ss
+    server: 139.140.141.142
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-140"
+    type: ss
+    server: 140.141.142.143
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-141"
+    type: ss
+    server: 141.142.143.144
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-142"
+    type: ss
+    server: 142.143.144.145
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-143"
+    type: ss
+    server: 143.144.145.146
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-144"
+    type: ss
+    server: 144.145.146.147
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-145"
+    type: ss
+    server: 145.146.147.148
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-146"
+    type: ss
+    server: 146.147.148.149
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-147"
+    type: ss
+    server: 147.148.149.150
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-148"
+    type: ss
+    server: 148.149.150.151
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-149"
+    type: ss
+    server: 149.150.151.152
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+  - name: "bulk-node-150"
+    type: ss
+    server: 150.151.152.153
+    port: 443
+    cipher: aes-256-gcm
+    password: pw
+proxy-groups:
+  - name: "Auto"
+    type: select
+    proxies:
+      - "bulk-node-001"
+      - "bulk-node-002"
+      - "bulk-node-003"
+      - "bulk-node-004"
+      - "bulk-node-005"
+      - "bulk-node-006"
+      - "bulk-node-007"
+      - "bulk-node-008"
+      - "bulk-node-009"
+      - "bulk-node-010"
+      - "bulk-node-011"
+      - "bulk-node-012"
+      - "bulk-node-013"
+      - "bulk-node-014"
+      - "bulk-node-015"
+      - "bulk-node-016"
+      - "bulk-node-017"
+      - "bulk-node-018"
+      - "bulk-node-019"
+      - "bulk-node-020"
+      - "bulk-node-021"
+      - "bulk-node-022"
+      - "bulk-node-023"
+      - "bulk-node-024"
+      - "bulk-node-025"
+      - "bulk-node-026"
+      - "bulk-node-027"
+      - "bulk-node-028"
+      - "bulk-node-029"
+      - "bulk-node-030"
+      - "bulk-node-031"
+      - "bulk-node-032"
+      - "bulk-node-033"
+      - "bulk-node-034"
+      - "bulk-node-035"
+      - "bulk-node-036"
+      - "bulk-node-037"
+      - "bulk-node-038"
+      - "bulk-node-039"
+      - "bulk-node-040"
+      - "bulk-node-041"
+      - "bulk-node-042"
+      - "bulk-node-043"
+      - "bulk-node-044"
+      - "bulk-node-045"
+      - "bulk-node-046"
+      - "bulk-node-047"
+      - "bulk-node-048"
+      - "bulk-node-049"
+      - "bulk-node-050"
+      - "bulk-node-051"
+      - "bulk-node-052"
+      - "bulk-node-053"
+      - "bulk-node-054"
+      - "bulk-node-055"
+      - "bulk-node-056"
+      - "bulk-node-057"
+      - "bulk-node-058"
+      - "bulk-node-059"
+      - "bulk-node-060"
+      - "bulk-node-061"
+      - "bulk-node-062"
+      - "bulk-node-063"
+      - "bulk-node-064"
+      - "bulk-node-065"
+      - "bulk-node-066"
+      - "bulk-node-067"
+      - "bulk-node-068"
+      - "bulk-node-069"
+      - "bulk-node-070"
+      - "bulk-node-071"
+      - "bulk-node-072"
+      - "bulk-node-073"
+      - "bulk-node-074"
+      - "bulk-node-075"
+      - "bulk-node-076"
+      - "bulk-node-077"
+      - "bulk-node-078"
+      - "bulk-node-079"
+      - "bulk-node-080"
+      - "bulk-node-081"
+      - "bulk-node-082"
+      - "bulk-node-083"
+      - "bulk-node-084"
+      - "bulk-node-085"
+      - "bulk-node-086"
+      - "bulk-node-087"
+      - "bulk-node-088"
+      - "bulk-node-089"
+      - "bulk-node-090"
+      - "bulk-node-091"
+      - "bulk-node-092"
+      - "bulk-node-093"
+      - "bulk-node-094"
+      - "bulk-node-095"
+      - "bulk-node-096"
+      - "bulk-node-097"
+      - "bulk-node-098"
+      - "bulk-node-099"
+      - "bulk-node-100"
+      - "bulk-node-101"
+      - "bulk-node-102"
+      - "bulk-node-103"
+      - "bulk-node-104"
+      - "bulk-node-105"
+      - "bulk-node-106"
+      - "bulk-node-107"
+      - "bulk-node-108"
+      - "bulk-node-109"
+      - "bulk-node-110"
+      - "bulk-node-111"
+      - "bulk-node-112"
+      - "bulk-node-113"
+      - "bulk-node-114"
+      - "bulk-node-115"
+      - "bulk-node-116"
+      - "bulk-node-117"
+      - "bulk-node-118"
+      - "bulk-node-119"
+      - "bulk-node-120"
+      - "bulk-node-121"
+      - "bulk-node-122"
+      - "bulk-node-123"
+      - "bulk-node-124"
+      - "bulk-node-125"
+      - "bulk-node-126"
+      - "bulk-node-127"
+      - "bulk-node-128"
+      - "bulk-node-129"
+      - "bulk-node-130"
+      - "bulk-node-131"
+      - "bulk-node-132"
+      - "bulk-node-133"
+      - "bulk-node-134"
+      - "bulk-node-135"
+      - "bulk-node-136"
+      - "bulk-node-137"
+      - "bulk-node-138"
+      - "bulk-node-139"
+      - "bulk-node-140"
+      - "bulk-node-141"
+      - "bulk-node-142"
+      - "bulk-node-143"
+      - "bulk-node-144"
+      - "bulk-node-145"
+      - "bulk-node-146"
+      - "bulk-node-147"
+      - "bulk-node-148"
+      - "bulk-node-149"
+      - "bulk-node-150"
+rules:
+  - MATCH,Auto
