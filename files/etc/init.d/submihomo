@@ -30,13 +30,25 @@ start_service() {
     config_generate || return 1
 
     . "$MODULES_DIR/routing.sh"
-    routing_setup || { routing_teardown; return 1; }
+    routing_setup || {
+        routing_teardown
+        return 1
+    }
 
     . "$MODULES_DIR/dns.sh"
-    dns_setup || { dns_teardown; routing_teardown; return 1; }
+    dns_setup || {
+        dns_teardown
+        routing_teardown
+        return 1
+    }
 
     . "$MODULES_DIR/firewall.sh"
-    firewall_setup || { firewall_teardown; dns_teardown; routing_teardown; return 1; }
+    firewall_setup || {
+        firewall_teardown
+        dns_teardown
+        routing_teardown
+        return 1
+    }
 
     # Non-blocking dashboard auto-download (failure must not block proxy startup)
     if [ ! -f "$DASHBOARD_DIR/index.html" ]; then
