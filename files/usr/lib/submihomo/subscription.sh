@@ -24,6 +24,16 @@ _subscription_download() {
     return 0
 }
 
+_subscription_sanitize() {
+    file=$1
+    # Remove bare "- null" entries that some providers emit in the rules list.
+    # They are valid YAML but rejected by mihomo -t as invalid rule syntax.
+    tmp="${file}.san"
+    sed '/^[[:space:]]*-[[:space:]]*null[[:space:]]*$/d' "$file" >"$tmp" &&
+        mv "$tmp" "$file" ||
+        rm -f "$tmp"
+}
+
 _subscription_validate() {
     file=$1
     [ -s "$file" ] || {
@@ -120,6 +130,7 @@ subscription_update() {
         release_lock
         return 1
     }
+    _subscription_sanitize "$tmpfile"
     _subscription_validate "$tmpfile" || {
         rm -f "$tmpfile"
         release_lock
