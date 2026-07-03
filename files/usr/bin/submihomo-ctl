@@ -16,6 +16,7 @@ Commands:
   update        Fetch and apply latest subscription
   dashboard     Download/update Zashboard
   core-install  Download/install managed Mihomo binary
+  core-adopt    Register a manually placed Mihomo binary (no download)
   core-update   Update managed Mihomo binary
   core-rollback Roll back to previous managed Mihomo binary
   logs [N]      Print last N log lines (default: 50)
@@ -123,6 +124,23 @@ cmd_core_rollback() {
     mihomo_rollback
 }
 
+cmd_core_adopt() {
+    . "${SUBMIHOMO_LIB:-/usr/lib/submihomo}/mihomo.sh"
+    [ -x "$MIHOMO_BIN" ] || {
+        printf 'ERROR: %s is not executable. Place the binary there first.\n' "$MIHOMO_BIN" >&2
+        return 1
+    }
+    ver=$("$MIHOMO_BIN" -v 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i~/^v?[0-9]+\.[0-9]+\.[0-9]+/){print $i;exit}}')
+    [ -n "$ver" ] || {
+        printf 'ERROR: binary at %s does not respond to -v\n' "$MIHOMO_BIN" >&2
+        return 1
+    }
+    arch=$(mihomo_detect_arch 2>/dev/null || printf 'unknown')
+    hash=$(sha256sum "$MIHOMO_BIN" 2>/dev/null | awk '{print $1}')
+    _mihomo_write_metadata "$ver" "$arch" "manual" "${hash:-unknown}"
+    printf 'Adopted %s (%s) — metadata written.\n' "$ver" "$arch"
+}
+
 case "${1:-}" in
 status) cmd_status ;;
 start) cmd_start ;;
@@ -131,6 +149,7 @@ restart) cmd_restart ;;
 update) cmd_update ;;
 dashboard) cmd_dashboard ;;
 core-install) cmd_core_install "${2:-}" ;;
+core-adopt) cmd_core_adopt ;;
 core-update) cmd_core_update ;;
 core-rollback) cmd_core_rollback ;;
 logs) cmd_logs "${2:-50}" ;;
