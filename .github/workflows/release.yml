@@ -37,7 +37,8 @@ jobs:
       - name: Install tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y shellcheck
+          sudo apt-get install -y shellcheck lua5.4
+          sudo ln -sf /usr/bin/lua5.4 /usr/local/bin/lua
           curl -sSL https://github.com/mvdan/sh/releases/download/v3.13.1/shfmt_v3.13.1_linux_amd64 -o /usr/local/bin/shfmt
           chmod +x /usr/local/bin/shfmt
 
