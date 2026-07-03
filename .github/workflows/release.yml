@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   validate:
     name: Validate & Test
@@ -249,6 +252,7 @@ jobs:
           body_path: release_notes.txt
           draft: false
           prerelease: ${{ needs.validate.outputs.is_prerelease }}
+          fail_on_unmatched_files: false
           files: |
             release-artifacts/**/*.apk
         env:
