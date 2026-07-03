@@ -1,7 +1,6 @@
 #!/bin/sh
 # run_all.sh — discover and run all unit test files, aggregate results
 # shellcheck shell=sh
-set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TOTAL_PASS=0
@@ -16,8 +15,8 @@ for test_file in "$SCRIPT_DIR"/test_*.sh; do
     exit_code=$?
     printf '%s\n' "$output"
     # Parse pass/fail counts from summary line
-    pass=$(printf '%s' "$output" | grep 'Passed:' | grep -o 'Passed: [0-9]*' | grep -o '[0-9]*')
-    fail=$(printf '%s' "$output" | grep 'Failed:' | grep -o 'Failed: [0-9]*' | grep -o '[0-9]*')
+    pass=$(printf '%s' "$output" | grep 'Passed:' | grep -o 'Passed: [0-9]*' | grep -o '[0-9]*' || true)
+    fail=$(printf '%s' "$output" | grep 'Failed:' | grep -o 'Failed: [0-9]*' | grep -o '[0-9]*' || true)
     TOTAL_PASS=$((TOTAL_PASS + ${pass:-0}))
     TOTAL_FAIL=$((TOTAL_FAIL + ${fail:-0}))
     if [ $exit_code -ne 0 ]; then
