@@ -223,7 +223,12 @@ _mihomo_download_with_retries() {
     attempt=0
     while [ "$attempt" -lt "$MIHOMO_DOWNLOAD_RETRIES" ]; do
         attempt=$((attempt + 1))
-        if wget -q --timeout="$MIHOMO_DOWNLOAD_TIMEOUT" --tries=1 -O "$output" "$url" 2>/dev/null; then
+        # First try with certificate verification; fall back without it on embedded
+        # devices where GitHub's release CDN redirect (objects.githubusercontent.com)
+        # causes cross-domain SSL failures in busybox wget.
+        if wget -q --timeout="$MIHOMO_DOWNLOAD_TIMEOUT" --tries=1 -O "$output" "$url" 2>/dev/null ||
+            wget -q --timeout="$MIHOMO_DOWNLOAD_TIMEOUT" --tries=1 --no-check-certificate \
+                -O "$output" "$url" 2>/dev/null; then
             return 0
         fi
         if [ "$attempt" -lt "$MIHOMO_DOWNLOAD_RETRIES" ]; then
