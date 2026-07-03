@@ -282,7 +282,10 @@ mihomo_install_version() {
     [ -n "$version" ] || version=$(mihomo_latest_version) || return 1
 
     filename="mihomo-linux-${arch}-${version}.gz"
-    url="https://github.com/${MIHOMO_SOURCE_REPO}/releases/download/${version}/${filename}"
+    # MIHOMO_DOWNLOAD_MIRROR overrides the base URL for regions where
+    # github.com release CDN is blocked (e.g. set to https://mirror.ghproxy.com/https://github.com)
+    _base="${MIHOMO_DOWNLOAD_MIRROR:-https://github.com/${MIHOMO_SOURCE_REPO}/releases/download}"
+    url="${_base%/}/${version}/${filename}"
     gz="/tmp/submihomo_mihomo_${version}_$$.gz"
     candidate="${MIHOMO_BIN}.new.$$"
     temp_binary="${MIHOMO_BIN}.install.$$"
