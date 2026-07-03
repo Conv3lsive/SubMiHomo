@@ -5,7 +5,7 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/mocks.sh"
 
-cat > "$MOCK_UCI_FILE" <<EOF
+cat >"$MOCK_UCI_FILE" <<EOF
 submihomo.main.enabled=1
 submihomo.main.log_level=warning
 EOF
@@ -20,10 +20,13 @@ export DNSMASQ_DIR="$SANDBOX/dnsmasq.d"
 . "$SCRIPT_DIR/../../files/usr/lib/submihomo/dns.sh"
 
 # Stub reload to avoid touching real dnsmasq/ubus; record invocation
-_dnsmasq_reload() { printf 'reload_called\n' >> "$MOCK_LOG"; return 0; }
+_dnsmasq_reload() {
+    printf 'reload_called\n' >>"$MOCK_LOG"
+    return 0
+}
 
 # ── dns_setup writes the correct directive ────────────────────────────────────
-: > "$MOCK_LOG"
+: >"$MOCK_LOG"
 dns_setup
 assert_zero "dns_setup returns 0 with valid dir" $?
 content=$(cat "$DNSMASQ_CONF" 2>/dev/null)
@@ -44,7 +47,7 @@ DNSMASQ_CONF="$DNSMASQ_DIR/submihomo.conf"
 dns_setup >/dev/null 2>&1
 [ -f "$DNSMASQ_CONF" ]
 assert_zero "conf exists before teardown" $?
-: > "$MOCK_LOG"
+: >"$MOCK_LOG"
 dns_teardown
 assert_zero "dns_teardown returns 0" $?
 [ ! -f "$DNSMASQ_CONF" ]

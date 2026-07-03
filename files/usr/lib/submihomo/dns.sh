@@ -14,8 +14,9 @@ dns_setup() {
     fi
     # Write forwarding directive. no-resolv prevents fallback to /etc/resolv.conf
     # when Mihomo is active, which is intentional — all DNS must go through Mihomo.
-    if ! printf 'no-resolv\nserver=127.0.0.1#%s\n' "$DNS_PORT" > "$DNSMASQ_CONF"; then
-        log_error "[dns] failed to write $DNSMASQ_CONF"; return 1
+    if ! printf 'no-resolv\nserver=127.0.0.1#%s\n' "$DNS_PORT" >"$DNSMASQ_CONF"; then
+        log_error "[dns] failed to write $DNSMASQ_CONF"
+        return 1
     fi
     chmod 644 "$DNSMASQ_CONF"
     _dnsmasq_reload
@@ -23,7 +24,10 @@ dns_setup() {
 }
 
 dns_teardown() {
-    [ -f "$DNSMASQ_CONF" ] || { log_warn "[dns] $DNSMASQ_CONF not present, skipping"; return 0; }
+    [ -f "$DNSMASQ_CONF" ] || {
+        log_warn "[dns] $DNSMASQ_CONF not present, skipping"
+        return 0
+    }
     rm -f "$DNSMASQ_CONF"
     _dnsmasq_reload
     log_info "[dns] dnsmasq forwarding configuration removed"
@@ -40,7 +44,7 @@ _dnsmasq_reload() {
         if [ -f "$pidfile" ]; then
             pid=$(cat "$pidfile" 2>/dev/null)
             if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-                kill -HUP "$pid" 2>/dev/null && \
+                kill -HUP "$pid" 2>/dev/null &&
                     log_debug "[dns] sent HUP to dnsmasq (pid $pid)" && return 0
             fi
         fi
@@ -48,7 +52,7 @@ _dnsmasq_reload() {
     # Last resort: pgrep
     pid=$(pgrep -x dnsmasq 2>/dev/null | head -1)
     if [ -n "$pid" ]; then
-        kill -HUP "$pid" 2>/dev/null && \
+        kill -HUP "$pid" 2>/dev/null &&
             log_debug "[dns] sent HUP to dnsmasq (pid $pid)" && return 0
     fi
     log_warn "[dns] dnsmasq not running; config will take effect when dnsmasq starts"

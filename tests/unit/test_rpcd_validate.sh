@@ -7,7 +7,10 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 RPCD="$SCRIPT_DIR/../../files/usr/lib/rpcd/submihomo"
 MOCK_LUA="$SCRIPT_DIR/mocks/lua"
-[ -f "$RPCD" ] || { printf '[FAIL] rpcd plugin not found\n'; exit 1; }
+[ -f "$RPCD" ] || {
+    printf '[FAIL] rpcd plugin not found\n'
+    exit 1
+}
 
 _run_set_config() {
     LUA_PATH="$MOCK_LUA/?.lua;$MOCK_LUA/?/init.lua;;" \

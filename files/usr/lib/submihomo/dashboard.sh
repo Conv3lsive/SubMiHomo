@@ -68,7 +68,7 @@ dashboard_download() {
     }
 
     # Write version file
-    printf '%s\n' "$tag" > "$DASHBOARD_DIR/.version"
+    printf '%s\n' "$tag" >"$DASHBOARD_DIR/.version"
     chmod 644 "$DASHBOARD_DIR/.version"
 
     rm -f "$json_tmp" "$zip_tmp"

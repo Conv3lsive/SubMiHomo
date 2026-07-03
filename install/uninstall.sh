@@ -41,14 +41,14 @@ printf '  /etc/submihomo/        (subscription YAML files)\n'
 printf '[y/N] '
 read -r answer
 case "$answer" in
-    [yY]|[yY][eE][sS])
-        rm -rf /etc/submihomo 2>/dev/null || true
-        rm -f /etc/config/submihomo 2>/dev/null || true
-        _info "Configuration and subscription data removed."
-        ;;
-    *)
-        _info "Configuration preserved at /etc/config/submihomo and /etc/submihomo/"
-        ;;
+[yY] | [yY][eE][sS])
+    rm -rf /etc/submihomo 2>/dev/null || true
+    rm -f /etc/config/submihomo 2>/dev/null || true
+    _info "Configuration and subscription data removed."
+    ;;
+*)
+    _info "Configuration preserved at /etc/config/submihomo and /etc/submihomo/"
+    ;;
 esac
 
 printf '\nSubMiHomo removed.\n'

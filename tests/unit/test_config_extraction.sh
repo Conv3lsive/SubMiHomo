@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 FIXTURES="$SCRIPT_DIR/fixtures"
 . "$SCRIPT_DIR/mocks.sh"
 
-cat > "$MOCK_UCI_FILE" <<EOF
+cat >"$MOCK_UCI_FILE" <<EOF
 submihomo.main.enabled=1
 submihomo.main.dns_mode=fake-ip
 submihomo.main.log_level=warning
@@ -70,7 +70,7 @@ assert_eq "extract missing key returns empty" "" "$block"
 
 # ── _extract_block: adjacent keys (no blank line between) ────────────────────
 adj_fixture="/tmp/sm_adj_$$"
-printf 'proxies:\n  - name: p1\n    type: ss\n    server: 1.1.1.1\n    port: 443\n    cipher: aes-256-gcm\n    password: pw\nproxy-groups:\n  - name: Auto\n    type: select\n    proxies: [p1]\nrules:\n  - MATCH,DIRECT\n' > "$adj_fixture"
+printf 'proxies:\n  - name: p1\n    type: ss\n    server: 1.1.1.1\n    port: 443\n    cipher: aes-256-gcm\n    password: pw\nproxy-groups:\n  - name: Auto\n    type: select\n    proxies: [p1]\nrules:\n  - MATCH,DIRECT\n' >"$adj_fixture"
 
 block=$(_extract_block proxies "$adj_fixture")
 assert_contains "adjacent-key: proxies block starts with proxies:" "proxies:" "$block"
@@ -84,7 +84,10 @@ config_generate 2>/dev/null
 rc=$?
 # mihomo -t mock returns 0, so should succeed
 assert_zero "config_generate succeeds with no subscription (empty proxy list)" $rc
-assert_zero "config.yaml was created" "$([ -f "$RUN_DIR/config.yaml" ]; echo $?)"
+assert_zero "config.yaml was created" "$(
+    [ -f "$RUN_DIR/config.yaml" ]
+    echo $?
+)"
 
 # ── config_generate: with valid subscription ──────────────────────────────────
 cp "$MINIMAL_FIXTURE" "$SUB_DIR/current.yaml"
@@ -104,7 +107,7 @@ match_pos=$(grep -nE '^[[:space:]]*- MATCH,' "$RUN_DIR/config.yaml" | tail -1 | 
 assert_zero "bypass rules appear before MATCH rule" $?
 
 # ── config_generate: bypass_china injects GEOIP rule with configurable code ──
-cat > "$MOCK_UCI_FILE" <<EOF3
+cat >"$MOCK_UCI_FILE" <<EOF3
 submihomo.main.enabled=1
 submihomo.main.dns_mode=fake-ip
 submihomo.main.log_level=warning
@@ -125,7 +128,7 @@ out=$(cat "$RUN_DIR/config.yaml")
 assert_contains "bypass_china=1 injects GEOIP,CN,DIRECT rule" "GEOIP,CN,DIRECT" "$out"
 
 # ── config_generate: custom geoip_code is used ───────────────────────────────
-cat > "$MOCK_UCI_FILE" <<EOF4
+cat >"$MOCK_UCI_FILE" <<EOF4
 submihomo.main.enabled=1
 submihomo.main.dns_mode=fake-ip
 submihomo.main.log_level=warning
@@ -148,7 +151,7 @@ assert_not_contains "custom geoip_code RU does not emit CN" "GEOIP,CN,DIRECT" "$
 
 # ── config_generate: external-controller binds correctly ─────────────────────
 # allow_lan_access=0 → 127.0.0.1
-cat > "$MOCK_UCI_FILE" <<EOF5
+cat >"$MOCK_UCI_FILE" <<EOF5
 submihomo.main.enabled=1
 submihomo.main.dns_mode=fake-ip
 submihomo.main.log_level=warning
@@ -169,7 +172,7 @@ assert_contains "allow_lan_access=0 binds to 127.0.0.1" "external-controller: 12
 assert_not_contains "allow_lan_access=0 does not bind 0.0.0.0" "0.0.0.0:9090" "$out"
 
 # allow_lan_access=1 → 0.0.0.0
-cat > "$MOCK_UCI_FILE" <<EOF6
+cat >"$MOCK_UCI_FILE" <<EOF6
 submihomo.main.enabled=1
 submihomo.main.dns_mode=fake-ip
 submihomo.main.log_level=warning

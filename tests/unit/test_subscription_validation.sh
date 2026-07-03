@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 FIXTURES="$SCRIPT_DIR/fixtures"
 . "$SCRIPT_DIR/mocks.sh"
 
-cat > "$MOCK_UCI_FILE" <<EOF
+cat >"$MOCK_UCI_FILE" <<EOF
 submihomo.main.subscription_url=https://example.com/sub
 submihomo.main.subscription_user_agent=SubMiHomo/1.0
 EOF
@@ -58,17 +58,17 @@ assert_nonzero "validate_url: rejects bare hostname" $?
 tmpfile="/tmp/sm_val_test_$$"
 
 # Empty file
-: > "$tmpfile"
+: >"$tmpfile"
 _subscription_validate "$tmpfile" 2>/dev/null
 assert_nonzero "validation rejects empty file" $?
 
 # File with proxies: key but no entries
-printf 'proxies: []\nrules:\n  - MATCH,DIRECT\n' > "$tmpfile"
+printf 'proxies: []\nrules:\n  - MATCH,DIRECT\n' >"$tmpfile"
 _subscription_validate "$tmpfile" 2>/dev/null
 assert_nonzero "validation rejects proxies with no entries" $?
 
 # File missing proxies: key entirely
-printf 'proxy-groups:\n  - name: Auto\nrules:\n  - MATCH,DIRECT\n' > "$tmpfile"
+printf 'proxy-groups:\n  - name: Auto\nrules:\n  - MATCH,DIRECT\n' >"$tmpfile"
 _subscription_validate "$tmpfile" 2>/dev/null
 assert_nonzero "validation rejects file with no proxies: key" $?
 
@@ -87,7 +87,7 @@ MIHOMO_T_FAIL=0
 export MIHOMO_T_FAIL
 
 # ── subscription_update: empty URL ────────────────────────────────────────────
-cat > "$MOCK_UCI_FILE" <<EOF
+cat >"$MOCK_UCI_FILE" <<EOF
 submihomo.main.subscription_url=
 submihomo.main.subscription_user_agent=SubMiHomo/1.0
 EOF
@@ -98,7 +98,7 @@ assert_nonzero "subscription_update returns non-zero when URL empty" $?
 # ── Backup and apply atomicity ────────────────────────────────────────────────
 # Seed a current.yaml
 printf 'proxies:\n  - name: old-node\n    type: ss\n    server: 1.1.1.1\n    port: 443\n    cipher: aes-256-gcm\n    password: test\n' \
-    > "$SUB_DIR/current.yaml"
+    >"$SUB_DIR/current.yaml"
 _subscription_backup
 assert_zero "backup step succeeds" $?
 assert_eq "backup.yaml matches current.yaml content" \
@@ -110,7 +110,10 @@ newfile="/tmp/sm_new_$$"
 cp "$FIXTURES/subscription_valid_minimal.yaml" "$newfile"
 _subscription_apply "$newfile" 2>/dev/null
 assert_zero "apply step succeeds" $?
-assert_zero "temp file removed after apply" "$([ ! -f "$newfile" ]; echo $?)"
+assert_zero "temp file removed after apply" "$(
+    [ ! -f "$newfile" ]
+    echo $?
+)"
 
 # Restore
 subscription_restore 2>/dev/null

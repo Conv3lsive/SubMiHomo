@@ -5,7 +5,7 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/mocks.sh"
 
-cat > "$MOCK_UCI_FILE" <<EOF
+cat >"$MOCK_UCI_FILE" <<EOF
 submihomo.main.log_level=warning
 EOF
 
@@ -34,12 +34,12 @@ GH_JSON='{
   ]
 }'
 JSON_FILE="$SANDBOX/gh.json"
-printf '%s\n' "$GH_JSON" > "$JSON_FILE"
+printf '%s\n' "$GH_JSON" >"$JSON_FILE"
 
 # Install a context-aware wget mock for this test
 CUSTOM_MOCK="$SANDBOX/mockbin"
 mkdir -p "$CUSTOM_MOCK"
-cat > "$CUSTOM_MOCK/wget" <<WEOF
+cat >"$CUSTOM_MOCK/wget" <<WEOF
 #!/bin/sh
 printf 'wget %s\n' "\$*" >> "${MOCK_LOG}"
 outfile=""
@@ -64,23 +64,26 @@ chmod +x "$CUSTOM_MOCK/wget"
 export PATH="$CUSTOM_MOCK:$PATH"
 
 # ── dashboard_download succeeds with valid JSON + zip ─────────────────────────
-: > "$MOCK_LOG"
+: >"$MOCK_LOG"
 dashboard_download >/dev/null 2>&1
 assert_zero "dashboard_download succeeds with valid release" $?
 assert_eq "dashboard_version returns installed tag" "v1.2.3" "$(dashboard_version)"
-assert_zero "dashboard index.html extracted" "$([ -f "$DASHBOARD_DIR/index.html" ]; echo $?)"
+assert_zero "dashboard index.html extracted" "$(
+    [ -f "$DASHBOARD_DIR/index.html" ]
+    echo $?
+)"
 assert_contains "download log includes dist.zip URL" "example.com/zashboard/dist.zip" "$(cat "$MOCK_LOG")"
 assert_not_contains "download log does not include source.zip URL" "example.com/zashboard/source.zip" "$(cat "$MOCK_LOG")"
 
 # ── dashboard_download fails when dist.zip asset missing ──────────────────────
-printf '%s\n' '{"tag_name":"v0.0.0","assets":[{"name":"source.zip","browser_download_url":"https://example.com/src.zip"}]}' > "$JSON_FILE"
+printf '%s\n' '{"tag_name":"v0.0.0","assets":[{"name":"source.zip","browser_download_url":"https://example.com/src.zip"}]}' >"$JSON_FILE"
 rm -rf "${DASHBOARD_DIR:?}"/*
 dashboard_download >/dev/null 2>&1
 assert_nonzero "dashboard_download fails when dist.zip missing" $?
 
 # ── dashboard_download fails when unzip payload is invalid ────────────────────
-printf '%s\n' '{"tag_name":"v0.0.0","assets":[{"name":"dist.zip","browser_download_url":"https://example.com/zashboard/dist.zip"}]}' > "$JSON_FILE"
-printf 'not-a-zip' > "$ZIP_FILE"
+printf '%s\n' '{"tag_name":"v0.0.0","assets":[{"name":"dist.zip","browser_download_url":"https://example.com/zashboard/dist.zip"}]}' >"$JSON_FILE"
+printf 'not-a-zip' >"$ZIP_FILE"
 rm -rf "${DASHBOARD_DIR:?}"/*
 dashboard_download >/dev/null 2>&1
 assert_nonzero "dashboard_download fails when extraction fails" $?

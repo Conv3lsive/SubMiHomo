@@ -5,7 +5,7 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/mocks.sh"
 
-cat > "$MOCK_UCI_FILE" <<EOF
+cat >"$MOCK_UCI_FILE" <<EOF
 submihomo.main.enabled=1
 submihomo.main.dns_mode=fake-ip
 submihomo.main.log_level=warning

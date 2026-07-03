@@ -5,7 +5,7 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/mocks.sh"
 
-cat > "$MOCK_UCI_FILE" <<EOF
+cat >"$MOCK_UCI_FILE" <<EOF
 submihomo.main.enabled=1
 submihomo.main.dns_mode=fake-ip
 submihomo.main.log_level=warning
@@ -44,7 +44,7 @@ assert_contains "controller bound to 127.0.0.1" "external-controller: 127.0.0.1:
 assert_not_contains "controller not bound to 0.0.0.0" "external-controller: 0.0.0.0:" "$out"
 
 # ── Subscription files are applied with restricted permissions ───────────────
-cat > "$SANDBOX/sub_input.yaml" <<'EOF'
+cat >"$SANDBOX/sub_input.yaml" <<'EOF'
 proxies:
   - name: sec-node
     type: ss
@@ -64,7 +64,7 @@ assert_eq "subscription current.yaml mode is 600" "600" "$mode"
 MOCK_LUA="$SANDBOX/lua"
 mkdir -p "$MOCK_LUA/luci"
 cp "$SCRIPT_DIR/mocks/lua/luci/jsonc.lua" "$MOCK_LUA/luci/jsonc.lua"
-cat > "$MOCK_LUA/uci.lua" <<'EOF'
+cat >"$MOCK_LUA/uci.lua" <<'EOF'
 local M = {}
 local data = {
     ["submihomo.main.external_controller_secret"] = "super_secret_123",
@@ -94,7 +94,8 @@ acl="$SCRIPT_DIR/../../files/usr/share/rpcd/acl.d/luci-app-submihomo.json"
 if jq empty "$acl" 2>/dev/null; then
     assert_contains "ACL JSON is valid" "luci-app-submihomo" "$(cat "$acl")"
 else
-    TESTS_FAIL=$((TESTS_FAIL+1)); printf '[FAIL] ACL JSON is invalid\n'
+    TESTS_FAIL=$((TESTS_FAIL + 1))
+    printf '[FAIL] ACL JSON is invalid\n'
 fi
 
 rm -rf "$SANDBOX"

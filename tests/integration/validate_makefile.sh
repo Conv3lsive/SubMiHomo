@@ -8,10 +8,16 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 MF="$ROOT/Makefile"
 FAIL=0
 
-err() { printf 'FAIL: %s\n' "$*"; FAIL=1; }
-ok()  { printf 'PASS: %s\n' "$*"; }
+err() {
+    printf 'FAIL: %s\n' "$*"
+    FAIL=1
+}
+ok() { printf 'PASS: %s\n' "$*"; }
 
-[ -f "$MF" ] || { printf 'FAIL: Makefile not found\n'; exit 1; }
+[ -f "$MF" ] || {
+    printf 'FAIL: Makefile not found\n'
+    exit 1
+}
 
 # Required package definitions
 for pkg in submihomo luci-app-submihomo; do
@@ -67,7 +73,7 @@ while IFS= read -r line; do
     else
         err "install source missing: $src"
     fi
-done < "$MF"
+done <"$MF"
 
 # Conffiles must reference existing files
 awk '/define Package\/submihomo\/conffiles/,/endef/' "$MF" | grep '^/etc/' | while IFS= read -r f; do

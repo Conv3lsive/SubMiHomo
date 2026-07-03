@@ -63,7 +63,8 @@ else
     exit 1
 fi
 
-set_config_out=$(docker exec -i "$CONTAINER_NAME" /usr/lib/rpcd/submihomo set_config <<'EOF'
+set_config_out=$(
+    docker exec -i "$CONTAINER_NAME" /usr/lib/rpcd/submihomo set_config <<'EOF'
 {"main":{"enabled":"1","subscription_url":"https://example.com/sub2","dns_mode":"fake-ip","log_level":"info","external_controller_port":"9090","allow_lan_access":"0","bypass_china":"0"}}
 EOF
 )
@@ -94,7 +95,7 @@ docker exec "$CONTAINER_NAME" apk del submihomo luci-app-submihomo
 printf '==> Verifying cleanup...\n'
 orphans=0
 for path in /usr/lib/submihomo /usr/bin/submihomo-ctl /etc/init.d/submihomo \
-            /usr/share/submihomo /usr/libexec/submihomo /var/run/submihomo; do
+    /usr/share/submihomo /usr/libexec/submihomo /var/run/submihomo; do
     if docker exec "$CONTAINER_NAME" sh -c "[ -e '$path' ]" 2>/dev/null; then
         printf 'FAIL: orphan path after uninstall: %s\n' "$path"
         orphans=1

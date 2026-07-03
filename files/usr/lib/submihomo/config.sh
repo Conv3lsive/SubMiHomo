@@ -3,7 +3,10 @@
 # shellcheck shell=sh
 . "${SUBMIHOMO_LIB:-/usr/lib/submihomo}/core.sh"
 _ensure_run_dir() {
-    mkdir -p "$RUN_DIR" 2>/dev/null || { log_error "[config] cannot create $RUN_DIR"; return 1; }
+    mkdir -p "$RUN_DIR" 2>/dev/null || {
+        log_error "[config] cannot create $RUN_DIR"
+        return 1
+    }
     chmod 700 "$RUN_DIR"
 }
 # _build_dns_section — generates the dns: block from UCI settings
@@ -69,15 +72,20 @@ _group_name_exists() {
 
 # _resolve_group_name <preferred> <sub_file> — returns a unique group name
 _resolve_group_name() {
-    preferred=$1; sub=$2; candidate=$preferred; n=1
+    preferred=$1
+    sub=$2
+    candidate=$preferred
+    n=1
     while _group_name_exists "$candidate" "$sub" 2>/dev/null; do
-        candidate="${preferred}_${n}"; n=$((n+1))
+        candidate="${preferred}_${n}"
+        n=$((n + 1))
     done
     printf '%s' "$candidate"
 }
 # _build_proxy_selector <group_name> <sub_file> — builds the PROXY selector group
 _build_proxy_selector() {
-    gname=$1; sub=$2
+    gname=$1
+    sub=$2
     groups=$(_extract_block proxy-groups "$sub" | awk '
         /^[[:space:]]*- name:/ {
             sub(/.*name:[[:space:]]*/, "")
@@ -96,19 +104,22 @@ _build_proxy_selector() {
 }
 _build_bypass_rules() {
     for cidr in 0.0.0.0/8 127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 \
-                192.168.0.0/16 169.254.0.0/16 224.0.0.0/4 \
-                240.0.0.0/4 100.64.0.0/10; do
+        192.168.0.0/16 169.254.0.0/16 224.0.0.0/4 \
+        240.0.0.0/4 100.64.0.0/10; do
         printf '  - IP-CIDR,%s,DIRECT,no-resolve\n' "$cidr"
     done
     geoip_code=$(uci_get bypass_china_geoip_code CN)
-    [ "$(uci_get bypass_china 0)" = "1" ] && \
+    [ "$(uci_get bypass_china 0)" = "1" ] &&
         printf '  - GEOIP,%s,DIRECT\n' "$geoip_code"
 }
 config_generate() {
     tmpl="$CONFIG_DIR/templates/base.yaml.tmpl"
     sub_file="$SUB_DIR/current.yaml"
     out_file="$RUN_DIR/config.yaml"
-    [ -f "$tmpl" ] || { log_error "[config] template not found: $tmpl"; return 1; }
+    [ -f "$tmpl" ] || {
+        log_error "[config] template not found: $tmpl"
+        return 1
+    }
     _ensure_run_dir || return 1
     # Read UCI values
     mixed_port=$(uci_get mixed_port "$MIXED_PORT")
@@ -129,23 +140,30 @@ config_generate() {
         -e "s|{{CTRL_PORT}}|$ctrl_port|g" -e "s|{{CTRL_BIND}}|$ctrl_bind|g" \
         -e "s|{{LOG_LEVEL}}|$log_lvl|g" -e "s|{{ALLOW_LAN}}|$allow_lan_val|g" \
         -e "s|{{CTRL_SECRET}}|$escaped_secret|g" -e "s|{{DASHBOARD_DIR}}|$dash_dir|g" \
-        "$tmpl" > "$tmp_cfg" || { log_error "[config] template substitution failed"; rm -f "$tmp_cfg"; return 1; }
+        "$tmpl" >"$tmp_cfg" || {
+        log_error "[config] template substitution failed"
+        rm -f "$tmp_cfg"
+        return 1
+    }
     # Splice DNS section (file-based to avoid awk multiline variable issues)
     dns_tmp=$(mktemp "$RUN_DIR/dns_tmp.XXXXXX")
-    _build_dns_section > "$dns_tmp"
+    _build_dns_section >"$dns_tmp"
     awk -v dnsf="$dns_tmp" '
         /^{{DNS_SECTION}}$/ {
             while ((getline line < dnsf) > 0) print line
             close(dnsf); next
         }{ print }
-    ' "$tmp_cfg" > "${tmp_cfg}.2" && mv "${tmp_cfg}.2" "$tmp_cfg"
+    ' "$tmp_cfg" >"${tmp_cfg}.2" && mv "${tmp_cfg}.2" "$tmp_cfg"
     rm -f "$dns_tmp"
     # No subscription — generate a safe empty config
     if [ ! -s "$sub_file" ]; then
         log_warn "[config] no subscription found, using empty proxy list"
-        chmod 600 "$tmp_cfg"; mv "$tmp_cfg" "$out_file"
+        chmod 600 "$tmp_cfg"
+        mv "$tmp_cfg" "$out_file"
         "$MIHOMO_BIN" -t -f "$out_file" >/dev/null 2>&1 || {
-            log_error "[config] empty config validation failed"; return 1; }
+            log_error "[config] empty config validation failed"
+            return 1
+        }
         return 0
     fi
     # Extract subscription blocks
@@ -159,7 +177,7 @@ config_generate() {
     preferred_name=$(uci_get internal_group_name "PROXY")
     if [ -n "$proxy_groups_raw" ]; then
         group_name=$(_resolve_group_name "$preferred_name" "$sub_file")
-        [ "$group_name" != "$preferred_name" ] && \
+        [ "$group_name" != "$preferred_name" ] &&
             log_warn "[config] group name '$preferred_name' conflicts, using '$group_name'"
     else
         group_name="$preferred_name"
@@ -184,17 +202,19 @@ config_generate() {
         printf 'rules:\n'
         _build_bypass_rules
         if [ -n "$rules_block" ]; then
-            printf '%s\n' "$rules_block" | tail -n +2 | \
-                grep -vE '^[[:space:]]*$' | \
+            printf '%s\n' "$rules_block" | tail -n +2 |
+                grep -vE '^[[:space:]]*$' |
                 grep -vE '^[[:space:]]*- MATCH,' || true
         fi
         printf '  - MATCH,%s\n' "$group_name"
-    } > "$out_file"
-    chmod 600 "$out_file"; rm -f "$tmp_cfg"
+    } >"$out_file"
+    chmod 600 "$out_file"
+    rm -f "$tmp_cfg"
     # Validate
     if ! "$MIHOMO_BIN" -t -f "$out_file" >/dev/null 2>&1; then
         err=$("$MIHOMO_BIN" -t -f "$out_file" 2>&1 | head -5)
-        log_error "[config] config validation failed: $err"; return 1
+        log_error "[config] config validation failed: $err"
+        return 1
     fi
     log_info "[config] config generated ($proxy_count proxies, group=$group_name)"
 }

@@ -35,7 +35,7 @@ cd "$SDK_DIR"
 
 # ── Add feeds: submihomo ──────────────────────────────────────────────────────
 if ! grep -qF "src-link submihomo $REPO_ROOT" feeds.conf 2>/dev/null; then
-    printf 'src-link submihomo %s\n' "$REPO_ROOT" >> feeds.conf
+    printf 'src-link submihomo %s\n' "$REPO_ROOT" >>feeds.conf
 fi
 
 # ── Update/install feeds ──────────────────────────────────────────────────────

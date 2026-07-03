@@ -5,7 +5,7 @@
 
 MOCK_LOG=${MOCK_LOG:-/tmp/submihomo_mock_$$.log}
 MOCK_UCI_FILE=${MOCK_UCI_FILE:-/tmp/submihomo_mock_uci_$$}
-: > "$MOCK_LOG"
+: >"$MOCK_LOG"
 export MOCK_LOG MOCK_UCI_FILE
 
 # ── Mock: logger ──────────────────────────────────────────────────────────────
@@ -21,13 +21,13 @@ _setup_mock_bins() {
     export SUBMIHOMO_LIB
 
     # logger — embed the actual log path
-    cat > "$MOCK_BIN_DIR/logger" <<MOCKEOF
+    cat >"$MOCK_BIN_DIR/logger" <<MOCKEOF
 #!/bin/sh
 printf 'logger %s\n' "\$*" >> "${MOCK_LOG}"
 MOCKEOF
 
     # uci — embed the actual file paths so subshells can find them
-    cat > "$MOCK_BIN_DIR/uci" <<MOCKEOF
+    cat >"$MOCK_BIN_DIR/uci" <<MOCKEOF
 #!/bin/sh
 _ML="${MOCK_LOG}"
 _MU="${MOCK_UCI_FILE}"
@@ -47,7 +47,7 @@ esac
 MOCKEOF
 
     # nft
-    cat > "$MOCK_BIN_DIR/nft" <<MOCKEOF
+    cat >"$MOCK_BIN_DIR/nft" <<MOCKEOF
 #!/bin/sh
 printf 'nft %s\n' "\$*" >> "${MOCK_LOG}"
 [ "\${NFT_MOCK_FAIL:-0}" = "1" ] && { printf 'mock nft failure\n' >&2; exit 1; }
@@ -55,7 +55,7 @@ exit 0
 MOCKEOF
 
     # ip
-    cat > "$MOCK_BIN_DIR/ip" <<MOCKEOF
+    cat >"$MOCK_BIN_DIR/ip" <<MOCKEOF
 #!/bin/sh
 printf 'ip %s\n' "\$*" >> "${MOCK_LOG}"
 [ "\${IP_MOCK_FAIL:-0}" = "1" ] && exit 1
@@ -67,7 +67,7 @@ esac
 MOCKEOF
 
     # wget
-    cat > "$MOCK_BIN_DIR/wget" <<MOCKEOF
+    cat >"$MOCK_BIN_DIR/wget" <<MOCKEOF
 #!/bin/sh
 printf 'wget %s\n' "\$*" >> "${MOCK_LOG}"
 outfile=""
@@ -87,7 +87,7 @@ exit "\${WGET_MOCK_EXIT:-0}"
 MOCKEOF
 
     # mihomo
-    cat > "$MOCK_BIN_DIR/mihomo" <<MOCKEOF
+    cat >"$MOCK_BIN_DIR/mihomo" <<MOCKEOF
 #!/bin/sh
 printf 'mihomo %s\n' "\$*" >> "${MOCK_LOG}"
 case "\$1" in
@@ -104,7 +104,7 @@ MOCKEOF
     export MIHOMO_BIN MIHOMO_BIN_DIR MIHOMO_BACKUP_BIN MIHOMO_STATE_DIR MIHOMO_VERSION_FILE
 
     # pgrep
-    cat > "$MOCK_BIN_DIR/pgrep" <<MOCKEOF
+    cat >"$MOCK_BIN_DIR/pgrep" <<MOCKEOF
 #!/bin/sh
 [ -n "\${PGREP_MOCK_PID:-}" ] && printf '%s\n' "\${PGREP_MOCK_PID}" && exit 0
 exit 1
@@ -121,47 +121,65 @@ TESTS_PASS=0
 TESTS_FAIL=0
 
 assert_eq() {
-    desc=$1; expected=$2; actual=$3
+    desc=$1
+    expected=$2
+    actual=$3
     if [ "$actual" = "$expected" ]; then
-        TESTS_PASS=$((TESTS_PASS+1)); printf '[PASS] %s\n' "$desc"
+        TESTS_PASS=$((TESTS_PASS + 1))
+        printf '[PASS] %s\n' "$desc"
     else
-        TESTS_FAIL=$((TESTS_FAIL+1)); printf '[FAIL] %s — expected "%s", got "%s"\n' "$desc" "$expected" "$actual"
+        TESTS_FAIL=$((TESTS_FAIL + 1))
+        printf '[FAIL] %s — expected "%s", got "%s"\n' "$desc" "$expected" "$actual"
     fi
 }
 
 assert_zero() {
-    desc=$1; code=$2
+    desc=$1
+    code=$2
     if [ "$code" -eq 0 ]; then
-        TESTS_PASS=$((TESTS_PASS+1)); printf '[PASS] %s\n' "$desc"
+        TESTS_PASS=$((TESTS_PASS + 1))
+        printf '[PASS] %s\n' "$desc"
     else
-        TESTS_FAIL=$((TESTS_FAIL+1)); printf '[FAIL] %s — expected exit 0, got %s\n' "$desc" "$code"
+        TESTS_FAIL=$((TESTS_FAIL + 1))
+        printf '[FAIL] %s — expected exit 0, got %s\n' "$desc" "$code"
     fi
 }
 
 assert_nonzero() {
-    desc=$1; code=$2
+    desc=$1
+    code=$2
     if [ "$code" -ne 0 ]; then
-        TESTS_PASS=$((TESTS_PASS+1)); printf '[PASS] %s\n' "$desc"
+        TESTS_PASS=$((TESTS_PASS + 1))
+        printf '[PASS] %s\n' "$desc"
     else
-        TESTS_FAIL=$((TESTS_FAIL+1)); printf '[FAIL] %s — expected non-zero, got 0\n' "$desc"
+        TESTS_FAIL=$((TESTS_FAIL + 1))
+        printf '[FAIL] %s — expected non-zero, got 0\n' "$desc"
     fi
 }
 
 assert_contains() {
-    desc=$1; needle=$2; haystack=$3
+    desc=$1
+    needle=$2
+    haystack=$3
     if printf '%s' "$haystack" | grep -q "$needle" 2>/dev/null; then
-        TESTS_PASS=$((TESTS_PASS+1)); printf '[PASS] %s\n' "$desc"
+        TESTS_PASS=$((TESTS_PASS + 1))
+        printf '[PASS] %s\n' "$desc"
     else
-        TESTS_FAIL=$((TESTS_FAIL+1)); printf '[FAIL] %s — "%s" not found in output\n' "$desc" "$needle"
+        TESTS_FAIL=$((TESTS_FAIL + 1))
+        printf '[FAIL] %s — "%s" not found in output\n' "$desc" "$needle"
     fi
 }
 
 assert_not_contains() {
-    desc=$1; needle=$2; haystack=$3
+    desc=$1
+    needle=$2
+    haystack=$3
     if ! printf '%s' "$haystack" | grep -q "$needle" 2>/dev/null; then
-        TESTS_PASS=$((TESTS_PASS+1)); printf '[PASS] %s\n' "$desc"
+        TESTS_PASS=$((TESTS_PASS + 1))
+        printf '[PASS] %s\n' "$desc"
     else
-        TESTS_FAIL=$((TESTS_FAIL+1)); printf '[FAIL] %s — "%s" should NOT appear but does\n' "$desc" "$needle"
+        TESTS_FAIL=$((TESTS_FAIL + 1))
+        printf '[FAIL] %s — "%s" should NOT appear but does\n' "$desc" "$needle"
     fi
 }
 

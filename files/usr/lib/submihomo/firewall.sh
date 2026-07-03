@@ -9,7 +9,7 @@ firewall_setup() {
     uci_get_bypass | while IFS= read -r cidr; do
         [ -z "$cidr" ] && continue
         if validate_cidr "$cidr"; then
-            printf '%s\n' "$cidr" >> "$bypass_tmp"
+            printf '%s\n' "$cidr" >>"$bypass_tmp"
         else
             log_warn "[firewall] skipping invalid bypass address: $cidr"
         fi
@@ -24,7 +24,7 @@ firewall_setup() {
         else
             user_elements="$user_elements, $cidr"
         fi
-    done < "$bypass_tmp"
+    done <"$bypass_tmp"
     rm -f "$bypass_tmp"
 
     # Build user_bypass_ipv4 set body
@@ -35,7 +35,7 @@ firewall_setup() {
     fi
 
     # Delete existing table first (replace-in-full strategy)
-    nft list table inet submihomo >/dev/null 2>&1 && \
+    nft list table inet submihomo >/dev/null 2>&1 &&
         nft delete table inet submihomo 2>/dev/null || true
 
     # Apply atomically via stdin

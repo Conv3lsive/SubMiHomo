@@ -5,7 +5,7 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/mocks.sh"
 
-cat > "$MOCK_UCI_FILE" <<EOF
+cat >"$MOCK_UCI_FILE" <<EOF
 submihomo.main.enabled=1
 submihomo.bypass.address=192.168.0.0/16
 EOF
@@ -57,22 +57,22 @@ assert_nonzero "invalid: empty string" $?
 
 # ── firewall_setup: records nft commands ─────────────────────────────────────
 . "$SCRIPT_DIR/../../files/usr/lib/submihomo/firewall.sh"
-: > "$MOCK_LOG"
+: >"$MOCK_LOG"
 firewall_setup 2>/dev/null
 assert_zero "firewall_setup returns 0 with mock nft" $?
 assert_contains "firewall_setup calls nft" "nft" "$(cat "$MOCK_LOG")"
 
 # ── firewall_teardown: records nft delete ────────────────────────────────────
-: > "$MOCK_LOG"
+: >"$MOCK_LOG"
 firewall_teardown 2>/dev/null
 assert_zero "firewall_teardown returns 0" $?
 
 # ── firewall_setup with invalid bypass CIDR ───────────────────────────────────
-cat > "$MOCK_UCI_FILE" <<EOF2
+cat >"$MOCK_UCI_FILE" <<EOF2
 submihomo.main.enabled=1
 submihomo.bypass.address=not.valid/99
 EOF2
-: > "$MOCK_LOG"
+: >"$MOCK_LOG"
 firewall_setup 2>/dev/null
 assert_zero "firewall_setup succeeds even with invalid bypass CIDR (skips it)" $?
 # The warning may be in a subshell (piped while loop) — verify no invalid CIDR ends up in the nft call

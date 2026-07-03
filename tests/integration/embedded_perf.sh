@@ -4,7 +4,7 @@
 # shellcheck shell=sh
 
 LOG=${1:-/tmp/submihomo_perf.log}
-: > "$LOG"
+: >"$LOG"
 
 log() { printf '%s\n' "$*" | tee -a "$LOG"; }
 
@@ -37,9 +37,9 @@ end_ms=$(awk '/^now/{print $2}' /proc/timer_list 2>/dev/null || date +%s%N)
 if [ -n "$pid" ]; then
     if [ "$start_ms" -gt 1000000000000 ] 2>/dev/null; then
         # timer_list returns nanoseconds
-        elapsed_ms=$(( (end_ms - start_ms) / 1000000 ))
+        elapsed_ms=$(((end_ms - start_ms) / 1000000))
     else
-        elapsed_ms=$(( (end_ms - start_ms) / 1000000 ))
+        elapsed_ms=$(((end_ms - start_ms) / 1000000))
     fi
     log "mihomo pid: $pid"
     log "cold-start time: ${elapsed_ms} ms"
@@ -82,7 +82,7 @@ cfg_start=$(awk '/^now/{print $2}' /proc/timer_list 2>/dev/null || date +%s%N)
 /usr/bin/submihomo-ctl generate >/dev/null 2>&1 || true
 cfg_end=$(awk '/^now/{print $2}' /proc/timer_list 2>/dev/null || date +%s%N)
 if [ -f /var/run/submihomo/config.yaml ]; then
-    cfg_ms=$(( (cfg_end - cfg_start) / 1000000 ))
+    cfg_ms=$(((cfg_end - cfg_start) / 1000000))
     log "config_generate time: ${cfg_ms} ms"
 else
     log "ERROR: config.yaml not generated"

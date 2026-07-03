@@ -20,7 +20,7 @@ apk add --allow-untrusted "$APK_DIR"/submihomo-*.apk \
 
 # Seed a test Mihomo core so lifecycle tests do not depend on external network.
 mkdir -p /usr/libexec/submihomo
-cat > /usr/libexec/submihomo/mihomo <<'EOF'
+cat >/usr/libexec/submihomo/mihomo <<'EOF'
 #!/bin/sh
 case "$1" in
     -t) exit 0 ;;

@@ -34,7 +34,7 @@ if [ ! -f "$IMAGE_GZ" ]; then
 fi
 if [ ! -f "$IMAGE" ]; then
     printf '==> Decompressing image...\n'
-    gunzip -c "$IMAGE_GZ" > "$IMAGE"
+    gunzip -c "$IMAGE_GZ" >"$IMAGE"
     qemu-img resize -f raw "$IMAGE" +512M
 fi
 
@@ -89,7 +89,10 @@ for _ in $(seq 1 60); do
     if $SSH echo ready >/dev/null 2>&1; then break; fi
     sleep 2
 done
-$SSH echo ready >/dev/null 2>&1 || { printf 'FAIL: SSH not ready\n'; exit 1; }
+$SSH echo ready >/dev/null 2>&1 || {
+    printf 'FAIL: SSH not ready\n'
+    exit 1
+}
 
 # ── Copy APKs and helpers into VM ─────────────────────────────────────────────
 printf '==> Copying APKs and helpers to VM...\n'
@@ -131,7 +134,10 @@ for _ in $(seq 1 60); do
     if $SSH echo ready >/dev/null 2>&1; then break; fi
     sleep 2
 done
-$SSH echo ready >/dev/null 2>&1 || { printf 'FAIL: SSH not ready after reboot\n'; exit 1; }
+$SSH echo ready >/dev/null 2>&1 || {
+    printf 'FAIL: SSH not ready after reboot\n'
+    exit 1
+}
 
 printf '==> Running post-reboot checks...\n'
 $SSH sh /apk/vm_check.sh

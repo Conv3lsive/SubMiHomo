@@ -5,7 +5,7 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/mocks.sh"
 
-cat > "$MOCK_UCI_FILE" <<EOF
+cat >"$MOCK_UCI_FILE" <<EOF
 submihomo.main.enabled=1
 submihomo.main.log_level=warning
 EOF
@@ -26,7 +26,7 @@ export RUN_DIR SUB_DIR DASHBOARD_DIR CONFIG_DIR
 
 # ── Fixture: indented YAML with spaces and tabs ───────────────────────────────
 SUB_YAML="$SANDBOX/sub/current.yaml"
-cat > "$SUB_YAML" <<'EOF'
+cat >"$SUB_YAML" <<'EOF'
 proxies:
   - name: "node-1"
     type: ss
@@ -98,7 +98,7 @@ GH_JSON='{
 }'
 export WGET_MOCK_RESPONSE="$GH_JSON"
 export WGET_MOCK_EXIT=0
-: > "$MOCK_LOG"
+: >"$MOCK_LOG"
 # download will fail at unzip (response is JSON), but extraction must pick the right URL
 if dashboard_download >/dev/null 2>&1; then
     : # unexpected, but not a failure of extraction
@@ -107,7 +107,7 @@ assert_contains "dashboard download extracts dist.zip URL" "https://example.com/
 assert_not_contains "dashboard download does not extract source.zip URL" "source.zip" "$(cat "$MOCK_LOG")"
 
 # ── dashboard_version reads version file ──────────────────────────────────────
-printf 'v1.2.3\n' > "$DASHBOARD_DIR/.version"
+printf 'v1.2.3\n' >"$DASHBOARD_DIR/.version"
 assert_eq "dashboard_version returns installed tag" "v1.2.3" "$(dashboard_version)"
 
 # ── No literal \s remains in production shell modules (excluding comments) ────
@@ -119,10 +119,10 @@ _suspect=$(grep -rn '\\s' "$SCRIPT_DIR/../../files/usr/lib/submihomo"/*.sh "$SCR
     printf '%s\n' "$line"
 done)
 if [ -n "$_suspect" ]; then
-    TESTS_FAIL=$((TESTS_FAIL+1))
+    TESTS_FAIL=$((TESTS_FAIL + 1))
     printf '[FAIL] literal \\s still present in production shell code:\n%s\n' "$_suspect"
 else
-    TESTS_PASS=$((TESTS_PASS+1))
+    TESTS_PASS=$((TESTS_PASS + 1))
     printf '[PASS] no literal \\s in production shell code\n'
 fi
 

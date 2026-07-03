@@ -5,8 +5,11 @@ set -e
 
 FAIL=0
 
-ok()  { printf 'PASS: %s\n' "$*"; }
-err() { printf 'FAIL: %s\n' "$*"; FAIL=1; }
+ok() { printf 'PASS: %s\n' "$*"; }
+err() {
+    printf 'FAIL: %s\n' "$*"
+    FAIL=1
+}
 
 # Service process
 if pgrep -x mihomo >/dev/null 2>&1; then

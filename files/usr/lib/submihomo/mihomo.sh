@@ -47,36 +47,60 @@ _mihomo_mips_float() {
 mihomo_detect_arch() {
     apk_arch=$(cat /etc/apk/arch 2>/dev/null || apk --print-arch 2>/dev/null || true)
     case "$apk_arch" in
-        x86_64) printf 'amd64'; return 0 ;;
-        i386|i486|i586|i686|pentium*) printf '386'; return 0 ;;
-        aarch64*) printf 'arm64'; return 0 ;;
-        arm_cortex-a5*|arm_cortex-a7*|arm_cortex-a8*|arm_cortex-a9*|arm_cortex-a15*) printf 'armv7'; return 0 ;;
-        arm_arm1176*) printf 'armv6'; return 0 ;;
-        mipsel*) printf 'mipsle-%s' "$(_mihomo_mips_float)"; return 0 ;;
-        mips*) printf 'mips-%s' "$(_mihomo_mips_float)"; return 0 ;;
-        riscv64*) printf 'riscv64'; return 0 ;;
+    x86_64)
+        printf 'amd64'
+        return 0
+        ;;
+    i386 | i486 | i586 | i686 | pentium*)
+        printf '386'
+        return 0
+        ;;
+    aarch64*)
+        printf 'arm64'
+        return 0
+        ;;
+    arm_cortex-a5* | arm_cortex-a7* | arm_cortex-a8* | arm_cortex-a9* | arm_cortex-a15*)
+        printf 'armv7'
+        return 0
+        ;;
+    arm_arm1176*)
+        printf 'armv6'
+        return 0
+        ;;
+    mipsel*)
+        printf 'mipsle-%s' "$(_mihomo_mips_float)"
+        return 0
+        ;;
+    mips*)
+        printf 'mips-%s' "$(_mihomo_mips_float)"
+        return 0
+        ;;
+    riscv64*)
+        printf 'riscv64'
+        return 0
+        ;;
     esac
 
     uname_arch=$(uname -m 2>/dev/null || true)
     case "$uname_arch" in
-        x86_64) printf 'amd64' ;;
-        i?86) printf '386' ;;
-        aarch64|arm64) printf 'arm64' ;;
-        armv7*|armv8*) printf 'armv7' ;;
-        armv6*) printf 'armv6' ;;
-        armv5*|armv4*) printf 'armv5' ;;
-        mips*)
-            if _mihomo_is_little_endian; then
-                printf 'mipsle-%s' "$(_mihomo_mips_float)"
-            else
-                printf 'mips-%s' "$(_mihomo_mips_float)"
-            fi
-            ;;
-        riscv64) printf 'riscv64' ;;
-        *)
-            log_error "[mihomo] unsupported architecture: ${apk_arch:-$uname_arch}"
-            return 1
-            ;;
+    x86_64) printf 'amd64' ;;
+    i?86) printf '386' ;;
+    aarch64 | arm64) printf 'arm64' ;;
+    armv7* | armv8*) printf 'armv7' ;;
+    armv6*) printf 'armv6' ;;
+    armv5* | armv4*) printf 'armv5' ;;
+    mips*)
+        if _mihomo_is_little_endian; then
+            printf 'mipsle-%s' "$(_mihomo_mips_float)"
+        else
+            printf 'mips-%s' "$(_mihomo_mips_float)"
+        fi
+        ;;
+    riscv64) printf 'riscv64' ;;
+    *)
+        log_error "[mihomo] unsupported architecture: ${apk_arch:-$uname_arch}"
+        return 1
+        ;;
     esac
 }
 
@@ -110,11 +134,11 @@ mihomo_latest_version() {
     }' "$tmp")
     rm -f "$tmp"
     case "$tag" in
-        v[0-9]*.[0-9]*.[0-9]*) printf '%s' "$tag" ;;
-        *)
-            log_error "[mihomo] invalid or missing latest release tag: ${tag:-empty}"
-            return 1
-            ;;
+    v[0-9]*.[0-9]*.[0-9]*) printf '%s' "$tag" ;;
+    *)
+        log_error "[mihomo] invalid or missing latest release tag: ${tag:-empty}"
+        return 1
+        ;;
     esac
 }
 
@@ -185,11 +209,11 @@ _mihomo_verify_executable() {
         return 1
     fi
     case "$out" in
-        *"$expected"*|*[Mm]ihomo*) return 0 ;;
-        *)
-            log_warn "[mihomo] candidate version output did not include expected tag: $out"
-            return 0
-            ;;
+    *"$expected"* | *[Mm]ihomo*) return 0 ;;
+    *)
+        log_warn "[mihomo] candidate version output did not include expected tag: $out"
+        return 0
+        ;;
     esac
 }
 
@@ -418,10 +442,10 @@ mihomo_rollback() {
 }
 
 case "${1:-}" in
-    install) mihomo_install_version "${2:-}" ;;
-    ensure) mihomo_ensure_installed ;;
-    update) mihomo_update ;;
-    rollback) mihomo_rollback ;;
-    arch) mihomo_detect_arch ;;
-    latest) mihomo_latest_version ;;
+install) mihomo_install_version "${2:-}" ;;
+ensure) mihomo_ensure_installed ;;
+update) mihomo_update ;;
+rollback) mihomo_rollback ;;
+arch) mihomo_detect_arch ;;
+latest) mihomo_latest_version ;;
 esac
