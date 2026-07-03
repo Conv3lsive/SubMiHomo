@@ -37,7 +37,9 @@ jobs:
       - name: Install tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y shellcheck shfmt
+          sudo apt-get install -y shellcheck
+          curl -sSL https://github.com/mvdan/sh/releases/download/v3.13.1/shfmt_v3.13.1_linux_amd64 -o /usr/local/bin/shfmt
+          chmod +x /usr/local/bin/shfmt
 
       - name: Run CI checks (ShellCheck)
         run: |
