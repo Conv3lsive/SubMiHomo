@@ -33,7 +33,7 @@ _build_dns_section() {
             '+.stun.*.*.*.*' 'stun.l.google.com' '+.n.n.srv.nintendo.net' \
             '+.nintendo.net' '+.cdn.nintendo.net' '+.battlenet.com.cn' \
             '+.blzstatic.cn'; do
-            printf '    - %s\n' "$entry"
+            printf "    - '%s'\n" "$entry"
         done
     else
         printf '  enhanced-mode: normal\n'
