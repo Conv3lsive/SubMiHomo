@@ -10,7 +10,7 @@ _subscription_download() {
     tmpfile=$2
     ua=$(uci_get subscription_user_agent "clash.meta")
     rm -f "$tmpfile"
-    if ! wget --timeout=30 --tries=1 -U "$ua" -O "$tmpfile" "$url" 2>/dev/null; then
+    if ! wget --timeout=30 -U "$ua" -O "$tmpfile" "$url" 2>/dev/null; then
         log_error "[subscription] download failed"
         rm -f "$tmpfile"
         return 1
