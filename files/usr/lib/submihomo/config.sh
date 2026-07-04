@@ -149,7 +149,7 @@ config_generate() {
     dns_tmp=$(mktemp "$RUN_DIR/dns_tmp.XXXXXX")
     _build_dns_section >"$dns_tmp"
     awk -v dnsf="$dns_tmp" '
-        /^{{DNS_SECTION}}$/ {
+        index($0, "{{DNS_SECTION}}") > 0 {
             while ((getline line < dnsf) > 0) print line
             close(dnsf); next
         }{ print }
