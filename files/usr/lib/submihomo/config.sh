@@ -169,6 +169,7 @@ config_generate() {
     # Extract subscription blocks
     proxies_block=$(_extract_block proxies "$sub_file")
     proxy_groups_raw=$(_extract_block proxy-groups "$sub_file")
+    rule_providers_block=$(_extract_block rule-providers "$sub_file")
     rules_block=$(_extract_block rules "$sub_file")
     [ -z "$proxies_block" ] && log_warn "[config] subscription has no proxies section"
     proxy_count=$(printf '%s\n' "$proxies_block" | grep -cE '^[[:space:]]*- name:' 2>/dev/null || echo 0)
@@ -198,6 +199,11 @@ config_generate() {
             printf '%s\n' "$proxy_groups_raw" | tail -n +2
         fi
         printf '\n'
+        # Include rule-providers from subscription so RULE-SET rules resolve
+        if [ -n "$rule_providers_block" ]; then
+            printf '%s\n' "$rule_providers_block"
+            printf '\n'
+        fi
         # Fix 7: rule ordering: LAN bypass, GEOIP bypass, sub rules (no MATCH catch-all), final MATCH
         printf 'rules:\n'
         _build_bypass_rules
