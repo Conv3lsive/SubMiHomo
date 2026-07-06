@@ -23,7 +23,7 @@ _build_dns_section() {
 
     if [ "$mode" = "fake-ip" ]; then
         printf '  enhanced-mode: fake-ip\n  fake-ip-range: 198.18.0.0/15\n  fake-ip-filter:\n'
-        for entry in '*.lan' '*.local' '*.local.' '*.home' '*.home.arpa' \
+        for entry in '*.lan' '*.local' '*.home' '*.home.arpa' \
             '*.invalid' '*.test' 'router.asus.com' 'repeater.asus.com' \
             '+.msftconnecttest.com' '+.msftncsi.com' '+.xbox.live.com' \
             '+.xboxlive.com' '+.time.windows.com' '+.ntp.org' '+.pool.ntp.org' \
@@ -32,7 +32,7 @@ _build_dns_section() {
             'localhost.sec.qq.com' 'stun.l.google.com' \
             '+.n.n.srv.nintendo.net' '+.nintendo.net' '+.cdn.nintendo.net' \
             '+.battlenet.com.cn' '+.blzstatic.cn'; do
-            printf "    - '%s'\n" "$entry"
+            printf '    - "%s"\n' "$entry"
         done
     else
         printf '  enhanced-mode: normal\n'
