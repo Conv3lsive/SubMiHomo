@@ -25,6 +25,7 @@ MIHOMO_BACKUP_BIN=${MIHOMO_BACKUP_BIN:-$MIHOMO_BIN_DIR/mihomo.backup}
 MIHOMO_STATE_DIR=${MIHOMO_STATE_DIR:-/etc/submihomo/mihomo}
 MIHOMO_VERSION_FILE=${MIHOMO_VERSION_FILE:-$MIHOMO_STATE_DIR/version}
 MIHOMO_SOURCE_REPO=${MIHOMO_SOURCE_REPO:-MetaCubeX/mihomo}
+MIHOMO_SAFE_PATHS="${MIHOMO_SAFE_PATHS:-/usr/share/submihomo:/etc/submihomo:/var/run/submihomo}"
 
 # ── UCI helpers ───────────────────────────────────────────────────────────────
 uci_get() {

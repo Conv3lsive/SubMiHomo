@@ -72,7 +72,7 @@ EOF
         awk '/^proxy-groups:/{b=1} b{print} /^[a-zA-Z_-][a-zA-Z0-9_-]*:/ && !/^proxy-groups:/{if(b)exit}' "$file"
         printf 'rules:\n  - MATCH,DIRECT\n'
     } >"$test_cfg"
-    err=$("$MIHOMO_BIN" -t -f "$test_cfg" 2>&1)
+    err=$(SAFE_PATHS="$MIHOMO_SAFE_PATHS" "$MIHOMO_BIN" -t -f "$test_cfg" 2>&1)
     ret=$?
     rm -f "$test_cfg"
     if [ "$ret" -ne 0 ]; then

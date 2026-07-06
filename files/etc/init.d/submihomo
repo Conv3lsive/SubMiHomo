@@ -61,6 +61,7 @@ start_service() {
 
     procd_open_instance
     procd_set_param command "$MIHOMO_BIN" -f "$RUN_DIR/config.yaml" -d "$RUN_DIR"
+    procd_set_param env SAFE_PATHS="$MIHOMO_SAFE_PATHS"
     procd_set_param respawn 60 5 0
     procd_set_param stdout 1
     procd_set_param stderr 1

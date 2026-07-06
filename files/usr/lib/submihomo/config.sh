@@ -160,7 +160,7 @@ config_generate() {
         log_warn "[config] no subscription found, using empty proxy list"
         chmod 600 "$tmp_cfg"
         mv "$tmp_cfg" "$out_file"
-        "$MIHOMO_BIN" -t -f "$out_file" >/dev/null 2>&1 || {
+        SAFE_PATHS="$MIHOMO_SAFE_PATHS" "$MIHOMO_BIN" -t -f "$out_file" >/dev/null 2>&1 || {
             log_error "[config] empty config validation failed"
             return 1
         }
@@ -211,8 +211,8 @@ config_generate() {
     chmod 600 "$out_file"
     rm -f "$tmp_cfg"
     # Validate
-    if ! "$MIHOMO_BIN" -t -f "$out_file" >/dev/null 2>&1; then
-        err=$("$MIHOMO_BIN" -t -f "$out_file" 2>&1 | head -5)
+    if ! SAFE_PATHS="$MIHOMO_SAFE_PATHS" "$MIHOMO_BIN" -t -f "$out_file" >/dev/null 2>&1; then
+        err=$(SAFE_PATHS="$MIHOMO_SAFE_PATHS" "$MIHOMO_BIN" -t -f "$out_file" 2>&1 | head -5)
         log_error "[config] config validation failed: $err"
         return 1
     fi
