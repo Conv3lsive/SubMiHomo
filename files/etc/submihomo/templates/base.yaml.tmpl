@@ -14,6 +14,11 @@ routing-mark: 255
 external-controller: {{CTRL_BIND}}:{{CTRL_PORT}}
 secret: "{{CTRL_SECRET}}"
 
+safe-paths:
+  - /usr/share/submihomo
+  - /etc/submihomo
+  - /var/run/submihomo
+
 external-ui: {{DASHBOARD_DIR}}
 
 {{DNS_SECTION}}
