@@ -27,12 +27,11 @@ _build_dns_section() {
             '*.invalid' '*.test' 'router.asus.com' 'repeater.asus.com' \
             '+.msftconnecttest.com' '+.msftncsi.com' '+.xbox.live.com' \
             '+.xboxlive.com' '+.time.windows.com' '+.ntp.org' '+.pool.ntp.org' \
-            'time.*.com' 'time.*.gov' 'time.*.edu.cn' 'time.*.apple.com' \
-            'time?.*.com' '+.apple.com.cn' 'localhost.ptlogin2.qq.com' \
-            'localhost.sec.qq.com' '+.stun.*.*' '+.stun.*.*.*' \
-            '+.stun.*.*.*.*' 'stun.l.google.com' '+.n.n.srv.nintendo.net' \
-            '+.nintendo.net' '+.cdn.nintendo.net' '+.battlenet.com.cn' \
-            '+.blzstatic.cn'; do
+            'time.apple.com' 'time.cloudflare.com' \
+            '+.apple.com.cn' 'localhost.ptlogin2.qq.com' \
+            'localhost.sec.qq.com' 'stun.l.google.com' \
+            '+.n.n.srv.nintendo.net' '+.nintendo.net' '+.cdn.nintendo.net' \
+            '+.battlenet.com.cn' '+.blzstatic.cn'; do
             printf "    - '%s'\n" "$entry"
         done
     else
