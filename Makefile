@@ -82,6 +82,8 @@ define Package/luci-app-submihomo/install
 	$(INSTALL_DATA) ./files/usr/share/luci/menu.d/luci-app-submihomo.json $(1)/usr/share/luci/menu.d/
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DATA) ./files/usr/share/rpcd/acl.d/luci-app-submihomo.json $(1)/usr/share/rpcd/acl.d/
+	$(INSTALL_DIR) $(1)/usr/share/rpcd/ucode
+	$(INSTALL_DATA) ./files/usr/share/rpcd/ucode/submihomo.uc $(1)/usr/share/rpcd/ucode/
 	$(INSTALL_DIR) $(1)/www/luci-static/resources/view/submihomo
 	$(INSTALL_DATA) ./files/htdocs/luci-static/resources/view/submihomo/*.js $(1)/www/luci-static/resources/view/submihomo/
 endef

@@ -75,8 +75,8 @@ chmod 644 /etc/submihomo/templates/base.yaml.tmpl
 
 # ── Step 5: Install rpcd plugin ──────────────────────────────────────────────
 _info "Installing rpcd plugin..."
-_fetch files/usr/lib/rpcd/submihomo /usr/lib/rpcd/submihomo
-chmod 755 /usr/lib/rpcd/submihomo
+_fetch files/usr/share/rpcd/ucode/submihomo.uc /usr/share/rpcd/ucode/submihomo.uc
+chmod 644 /usr/share/rpcd/ucode/submihomo.uc
 
 _fetch files/usr/share/rpcd/acl.d/luci-app-submihomo.json \
     /usr/share/rpcd/acl.d/luci-app-submihomo.json
