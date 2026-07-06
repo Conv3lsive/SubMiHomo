@@ -166,6 +166,7 @@ config_generate() {
         return 0
     fi
     # Extract subscription blocks
+    anchors_block=$(_extract_block x-anchors "$sub_file")
     proxies_block=$(_extract_block proxies "$sub_file")
     proxy_groups_raw=$(_extract_block proxy-groups "$sub_file")
     rule_providers_block=$(_extract_block rule-providers "$sub_file")
@@ -185,6 +186,10 @@ config_generate() {
     # Build final config
     {
         awk '/^proxies: \[\]$/{exit}{print}' "$tmp_cfg"
+        # Include x-anchors so <<: merge references resolve at runtime
+        if [ -n "$anchors_block" ]; then
+            printf '%s\n\n' "$anchors_block"
+        fi
         # Fix 8: always emit proxies section
         if [ -n "$proxies_block" ]; then
             printf '%s\n' "$proxies_block"
