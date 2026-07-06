@@ -9,8 +9,11 @@ DNSMASQ_CONF="$DNSMASQ_DIR/submihomo.conf"
 
 dns_setup() {
     if [ ! -d "$DNSMASQ_DIR" ]; then
-        log_error "[dns] $DNSMASQ_DIR does not exist — is dnsmasq installed?"
-        return 1
+        mkdir -p "$DNSMASQ_DIR" 2>/dev/null || {
+            log_error "[dns] $DNSMASQ_DIR does not exist and could not be created"
+            return 1
+        }
+        log_info "[dns] created $DNSMASQ_DIR"
     fi
     # Write forwarding directive. no-resolv prevents fallback to /etc/resolv.conf
     # when Mihomo is active, which is intentional — all DNS must go through Mihomo.
