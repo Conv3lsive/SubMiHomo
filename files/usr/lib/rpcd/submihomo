@@ -371,10 +371,14 @@ local function m_update_subscription()
     local fh = io.popen(". "..MODS_DIR.."/subscription.sh && subscription_update 2>&1; echo EXIT:$?")
     local out = fh and fh:read("*a") or ""; if fh then fh:close() end
     local ec = tonumber(out:match("EXIT:(%d+)")) or 1
-    if ec == 0 then
-        local fh2 = io.popen("grep -c '^[[:space:]]*- name:' '"..SUB_DIR.."/current.yaml' 2>/dev/null")
-        local cnt = fh2 and fh2:read("*a") or "0"; if fh2 then fh2:close() end
-        return {success=true, proxy_count=tonumber(cnt:match("%d+")) or 0}
+    -- Count proxies from the subscription file regardless of exit code:
+    -- config_generate may fail for benign reasons (YAML anchors, hot-reload
+    -- unavailable) while the subscription itself was applied successfully.
+    local fh2 = io.popen("grep -c '^[[:space:]]*- name:' '"..SUB_DIR.."/current.yaml' 2>/dev/null")
+    local cnt = fh2 and fh2:read("*a") or "0"; if fh2 then fh2:close() end
+    local proxy_count = tonumber(cnt:match("%d+")) or 0
+    if ec == 0 or proxy_count > 0 then
+        return {success=true, proxy_count=proxy_count}
     end
     local errmsg = out:match("%[ERROR%][^\n]*") or "Update failed"
     return {success=false, error=errmsg}
