@@ -35,7 +35,7 @@ function read_sub_status() {
     };
 }
 
-return {
+const methods = {
     get_config: {
         call: function() {
             let out = shell(". " + MODS_DIR + "/core.sh && " +
@@ -173,3 +173,5 @@ return {
         }
     }
 };
+
+return { submihomo: methods };
